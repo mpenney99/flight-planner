@@ -1,3 +1,5 @@
+import { faPlane } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { useRecoilValue } from 'recoil';
 import { selectedFlightIdAtom } from '../atoms';
@@ -13,6 +15,9 @@ export function SidePanel() {
         >
             {selectedFlightId ? (
                 <div className="flex-grow-1">
+                    <h2 className="text-primary text-center mb-3">
+                        <FontAwesomeIcon icon={faPlane} /> Flight Planner
+                    </h2>
                     <FlightPicker />
                     <br />
                     <FlightDetails flightId={selectedFlightId} />

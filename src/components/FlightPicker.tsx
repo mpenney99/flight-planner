@@ -1,4 +1,4 @@
-import { FormControl, FormGroup, FormLabel, InputGroup } from 'react-bootstrap';
+import { FormControl, InputGroup } from 'react-bootstrap';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { flightIdsAtom, selectedFlightIdAtom } from '../atoms';
 import { FlightPlaybackControls } from './FlightPlaybackControls';
@@ -13,18 +13,15 @@ export function FlightPicker() {
     };
 
     return (
-        <FormGroup>
-            <FormLabel>Flight</FormLabel>
-            <InputGroup>
-                <FormControl as="select" value={selectedFlightId || ''} onChange={onFlightChanged}>
-                    {flightIds.map((flightId) => (
-                        <option key={flightId} value={flightId}>
-                            {flightId}
-                        </option>
-                    ))}
-                </FormControl>
-                {selectedFlightId && <FlightPlaybackControls flightId={selectedFlightId} />}
-            </InputGroup>
-        </FormGroup>
+        <InputGroup>
+            <FormControl as="select" value={selectedFlightId || ''} onChange={onFlightChanged}>
+                {flightIds.map((flightId) => (
+                    <option key={flightId} value={flightId}>
+                        {flightId}
+                    </option>
+                ))}
+            </FormControl>
+            {selectedFlightId && <FlightPlaybackControls flightId={selectedFlightId} />}
+        </InputGroup>
     );
 }

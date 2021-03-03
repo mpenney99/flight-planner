@@ -93,19 +93,19 @@ function useFlightPath(flightId: string, flightConfig: FlightConfig) {
     }, [flightId, flightMap]);
 }
 
-export function Flight({ flightId }: Props) {
+export function FlightPath({ flightId }: Props) {
     const flightConfig = useRecoilValue(flightConfigAtomFamily(flightId));
     useFlightPlayer(flightId, flightConfig);
     useFlightPath(flightId, flightConfig);
     return null;
 }
 
-export function Flights() {
+export function FlightPaths() {
     const flightIds = useRecoilValue(flightIdsAtom);
     return (
         <>
             {flightIds.map((flightId) => (
-                <Flight key={flightId} flightId={flightId} />
+                <FlightPath key={flightId} flightId={flightId} />
             ))}
         </>
     );

@@ -1,4 +1,4 @@
-import { API_KEY } from '../config';
+import { unifly } from '../config.json';
 
 export type Track = {
     latitude: number;
@@ -54,7 +54,7 @@ export class GAClient {
                     groundSpeed: groundSpeed
                 },
                 identification: transponderId ? transponderId : 'UNKNOWN',
-                apiKey: API_KEY
+                apiKey: unifly.api_key
             }
         ]);
 

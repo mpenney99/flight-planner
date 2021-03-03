@@ -1,0 +1,7 @@
+{
+    "mapbox_access_token": "pk.eyJ1IjoibXBlbm5leTk5IiwiYSI6ImNrbG1paG40YzA5ZjUybnF5aGZobGFlMHcifQ.le-be8-cf0Y9FNt56KYqAw",
+    "update_interval": 500,
+    "unifly": {
+        "api_key": ""
+    }
+}

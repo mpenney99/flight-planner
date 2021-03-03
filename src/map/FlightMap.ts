@@ -3,9 +3,9 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import mapboxgl from 'mapbox-gl';
 import { Subject } from 'rxjs';
 import { Point, UAS } from '../types';
-import { MAPBOX_ACCESS_TOKEN } from '../config';
+import { mapbox_access_token } from '../config.json';
 
-mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
+mapboxgl.accessToken = mapbox_access_token;
 
 export enum EventType {
     FLIGHT_SELECTED,

@@ -2,8 +2,8 @@ import distance from '@turf/distance';
 import bearing from '@turf/bearing';
 import destination from '@turf/destination';
 import { GAClient } from './GAClient';
-import { UPDATE_INTERVAL, VEHICLE_TYPE } from '../config';
 import { FlightConfig, Point, UAS } from '../types';
+import { update_interval } from '../config.json';
 import { Subject } from 'rxjs';
 
 const KM_TO_KNOTS = 1.852;
@@ -55,7 +55,7 @@ export class FlightPlayer {
     play() {
         const now = new Date().getTime();
         this._startTime = now;
-        this._handle = setInterval(this._update, UPDATE_INTERVAL);
+        this._handle = setInterval(this._update, update_interval);
 
         // check if we're paused
         if (this._distOffset !== 0) {
@@ -123,7 +123,7 @@ export class FlightPlayer {
                 altitudeReference: 'MSL',
                 source: 'uniflyJsonToFlight',
                 callSign: this._config.callSign,
-                vehicleType: VEHICLE_TYPE,
+                vehicleType: 'UAS',
                 transponderId: this._config.transponderId
             });
 

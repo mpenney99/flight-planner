@@ -1,0 +1,16 @@
+@import '~bootstrap/dist/css/bootstrap.min.css';
+
+html {
+    font-size: 14px;
+}
+
+.app {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.u-visibility-hidden {
+    visibility: hidden;
+}

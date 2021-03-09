@@ -1,8 +1,9 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { Form, InputGroup } from 'react-bootstrap';
 import { useRecoilState } from 'recoil';
 import { flightConfigAtomFamily } from '../atoms';
 import { Point } from '../types';
+import { ColorInput } from './inputs/ColorInput';
 import { NumberInput } from './inputs/NumberInput';
 import { PathNodeInput } from './inputs/PathNodeInput';
 import { TextInput } from './inputs/TextInput';
@@ -13,6 +14,10 @@ type Props = {
 
 export function FlightDetails({ flightId }: Props) {
     const [flightConfig, setFlightConfig] = useRecoilState(flightConfigAtomFamily(flightId));
+
+    const onLineColorChanged = (lineColor: string) => {
+        setFlightConfig((config) => ({ ...config, lineColor }));
+    };
 
     const onTransponderIdChanged = (transponderId: string) => {
         setFlightConfig((config) => ({ ...config, transponderId }));
@@ -27,7 +32,7 @@ export function FlightDetails({ flightId }: Props) {
     };
 
     const onAltitudeChanged = (altitudeKm: number) => {
-        setFlightConfig((config) => ({ ...config, altitudeKm }));
+        setFlightConfig((config) => ({ ...config, altitude: altitudeKm }));
     };
 
     const onPathNodeChanged = useCallback(
@@ -53,7 +58,11 @@ export function FlightDetails({ flightId }: Props) {
     );
 
     return (
-        <div className="pt-4 border-top">
+        <div className="p-3 flex-grow-1 border-top overflow-auto">
+            <Form.Group>
+                <Form.Label>Line Colour</Form.Label>
+                <ColorInput value={flightConfig.lineColor} onChange={onLineColorChanged} />
+            </Form.Group>
             <Form.Group>
                 <Form.Label>Transponder Id</Form.Label>
                 <TextInput value={flightConfig.transponderId} onChange={onTransponderIdChanged} />
@@ -65,9 +74,9 @@ export function FlightDetails({ flightId }: Props) {
             <Form.Group>
                 <Form.Label>Altitude</Form.Label>
                 <InputGroup>
-                    <NumberInput value={flightConfig.altitudeKm} onChange={onAltitudeChanged} />
+                    <NumberInput value={flightConfig.altitude} onChange={onAltitudeChanged} />
                     <InputGroup.Append>
-                        <InputGroup.Text>km</InputGroup.Text>
+                        <InputGroup.Text>m</InputGroup.Text>
                     </InputGroup.Append>
                 </InputGroup>
             </Form.Group>

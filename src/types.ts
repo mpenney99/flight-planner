@@ -7,12 +7,13 @@ export enum PlayMode {
 }
 
 export type FlightConfig = {
+    lineColor: string;
     playMode: PlayMode;
     playRepeat: boolean;
     transponderId: string;
     callSign: string;
     speedKmh: number;
-    altitudeKm: number;
+    altitude: number;
     path: Point[];
 };
 

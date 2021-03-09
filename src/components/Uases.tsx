@@ -3,6 +3,8 @@ import { useRecoilValue } from 'recoil';
 import { uasAtomFamily, uasIdsAtom } from '../atoms';
 import { useFlightMap } from '../context';
 
+// renders the UAS on the map
+
 type Props = {
     uasId: string;
 };

@@ -116,7 +116,7 @@ export class FlightPlayer {
                 longitude: point[0],
                 latitude: point[1],
                 sequence: this._sequence++,
-                altitude: this._config.altitudeKm,
+                altitude: this._config.altitude,
                 heading,
                 trueHeading: 0,
                 groundSpeed: this._config.speedKmh / KM_TO_KNOTS,

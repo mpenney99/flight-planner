@@ -4,12 +4,13 @@ import { FlightConfig, PlayMode, UAS } from './types';
 export const flightConfigAtomFamily = atomFamily<FlightConfig, string>({
     key: 'flight',
     default: {
+        lineColor: '',
         playMode: PlayMode.STOPPED,
         playRepeat: false,
         transponderId: '',
         callSign: '',
         speedKmh: 100,
-        altitudeKm: 30,
+        altitude: 30,
         path: []
     }
 });

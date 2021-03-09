@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { RecoilRoot } from 'recoil';
-import { FlightPaths } from './components/FlightPaths';
+import { Flights } from './components/Flights';
 import { MapView } from './components/MapView';
 import { SidePanel } from './components/SidePanel';
 import { Uases } from './components/Uases';
@@ -16,7 +16,7 @@ function App() {
                 <div className="app">
                     <SidePanel />
                     <MapView onFlightMapCreated={setFlightMap} />
-                    <FlightPaths />
+                    <Flights />
                     <Uases />
                 </div>
             </flightMapContext.Provider>

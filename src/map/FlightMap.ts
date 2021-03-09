@@ -4,31 +4,30 @@ import mapboxgl from 'mapbox-gl';
 import { Subject } from 'rxjs';
 import { Point, UAS } from '../types';
 import { mapbox_access_token } from '../config.json';
+import { DRAW_STYLES } from './drawStyles';
+import chroma from 'chroma-js';
 
 mapboxgl.accessToken = mapbox_access_token;
 
 export enum EventType {
-    FLIGHT_SELECTED,
-    FLIGHT_PATH_CREATED,
-    FLIGHT_PATH_UPDATED,
-    FLIGHT_PATH_DELETED,
-    UAS_SELECTED,
+    PATH_SELECTED,
+    PATH_CREATED,
+    PATH_UPDATED,
+    PATH_DELETED
 }
 
 export type Event =
-    | { type: EventType.FLIGHT_SELECTED; flightId: string }
-    | { type: EventType.FLIGHT_PATH_CREATED; flightId: string; path: Point[] }
-    | { type: EventType.FLIGHT_PATH_UPDATED; flightId: string; path: Point[] }
-    | { type: EventType.FLIGHT_PATH_DELETED; flightId: string }
+    | { type: EventType.PATH_SELECTED; featureId: string }
+    | { type: EventType.PATH_CREATED; featureId: string; path: Point[], lineColor: string }
+    | { type: EventType.PATH_UPDATED; featureId: string; path: Point[] }
+    | { type: EventType.PATH_DELETED; featureId: string }
 
 export class FlightMap {
     private readonly _events = new Subject<Event>();
     private readonly _uasMarkers = new Map<string, mapboxgl.Marker>();
-    private readonly _flightPaths = new Map<string, Point[]>();
-
+    private readonly _paths = new Map<string, Point[]>();
     private readonly _map: mapboxgl.Map;
     private readonly _draw: MapboxDraw;
-
     private _selectedFlightId: string | null = null;
 
     constructor(container: HTMLElement) {
@@ -57,7 +56,9 @@ export class FlightMap {
             controls: {
                 line_string: true,
                 trash: true
-            }
+            },
+            userProperties: true,
+            styles: DRAW_STYLES
         });
 
         map.addControl(this._draw);
@@ -79,19 +80,27 @@ export class FlightMap {
         this._draw.changeMode('direct_select', { featureId: flightId });
     }
 
-    updatePath(flightId: string, path: Point[]) {
-        if (this._flightPaths.get(flightId) === path) {
+    updatePath(featureId: string, path: Point[]) {
+        if (this._paths.get(featureId) === path) {
             return;
         }
-        const feature = this._createFeatureFromPath(flightId, path);
+        const feature = this._createFeatureFromPath(featureId, path);
         this._draw.add(feature);
     }
 
-    removePath(flightId: string) {
-        if (!this._flightPaths.has(flightId)) {
+    setPathColor(featureId: string, lineColor: string) {
+        this._draw.setFeatureProperty(featureId, 'lineColor', lineColor);
+
+        // add the feature back onto the map to force the color to update
+        const feat = this._draw.get(featureId);
+        if (feat) this._draw.add(feat);
+    }
+
+    removePath(featureId: string) {
+        if (!this._paths.has(featureId)) {
             return;
         }
-        this._draw.delete(flightId);
+        this._draw.delete(featureId);
     }
 
     updateUas(id: string, uas: UAS) {
@@ -121,35 +130,38 @@ export class FlightMap {
     private _onDrawCreate(event: { features: GeoJSON.Feature[] }) {
         event.features.forEach((feature) => {
             const path = this._geometryToPath(feature.geometry);
-            const flightId = feature.id as string;
-            this._flightPaths.set(flightId, path);
-            this._events.next({ type: EventType.FLIGHT_PATH_CREATED, flightId, path });
+            const featureId = feature.id as string;
+            this._paths.set(featureId, path);
+
+            const lineColor = chroma.random().hex();
+            this._draw.setFeatureProperty(featureId, 'lineColor', lineColor);
+            this._events.next({ type: EventType.PATH_CREATED, featureId, path, lineColor });
         });
     }
 
     private _onDrawSelect(event: { features: GeoJSON.Feature[] }) {
         if (event.features.length) {
-            const flightId = event.features[0].id as string;
-            this._selectedFlightId = flightId;
-            this._events.next({ type: EventType.FLIGHT_SELECTED, flightId });
+            const featureId = event.features[0].id as string;
+            this._selectedFlightId = featureId;
+            this._events.next({ type: EventType.PATH_SELECTED, featureId });
         }
     }
 
     private _onDrawUpdate(event: { features: GeoJSON.Feature[] }) {
         event.features.forEach((feature) => {
-            const flightId = feature.id as string;
+            const featureId = feature.id as string;
             const path = this._geometryToPath(feature.geometry);
-            this._flightPaths.set(flightId, path);
-            this._events.next({ type: EventType.FLIGHT_PATH_UPDATED, flightId, path });
+            this._paths.set(featureId, path);
+            this._events.next({ type: EventType.PATH_UPDATED, featureId, path });
         });
     }
 
     private _onDrawDelete(event: { features: GeoJSON.Feature[] }) {
         event.features.forEach((feature) => {
-            const flightId = feature.id as string;
-            this._flightPaths.delete(flightId);
+            const featureId = feature.id as string;
+            this._paths.delete(featureId);
             this._selectedFlightId = null;
-            this._events.next({ type: EventType.FLIGHT_PATH_DELETED, flightId });
+            this._events.next({ type: EventType.PATH_DELETED, featureId });
         });
     }
 
@@ -162,7 +174,7 @@ export class FlightMap {
         el.style.width = '40px';
         el.style.height = '40px';
         el.addEventListener('click', () => {
-            this._events.next({ type: EventType.FLIGHT_SELECTED, flightId });
+            this._events.next({ type: EventType.PATH_SELECTED, featureId: flightId });
         });
 
         container.appendChild(el);

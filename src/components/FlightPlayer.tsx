@@ -1,15 +1,18 @@
 import { useEffect, useRef } from 'react';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
-import { flightConfigAtomFamily, flightIdsAtom, uasAtomFamily, uasIdsAtom } from '../atoms';
-import { useFlightMap } from '../context';
-import { EventType, FlightPlayer } from '../player/FlightPlayer';
-import { FlightConfig, PlayMode, UAS } from '../types';
+import { flightConfigAtomFamily, uasAtomFamily, uasIdsAtom } from '../atoms';
+import { FlightPlayer, EventType } from '../player/FlightPlayer';
+import { UAS, PlayMode } from '../types';
+import { appendIfNotPresent } from '../utils/arrayUtils';
+
+// plays the flight, updates the position of the UAS
 
 type Props = {
     flightId: string;
 };
 
-function useFlightPlayer(flightId: string, flightConfig: FlightConfig) {
+export function FlightPlayerComponent({ flightId }: Props) {
+    const flightConfig = useRecoilValue(flightConfigAtomFamily(flightId));
     const flightPlayer = useRef<FlightPlayer>();
     const initialFlightConfig = useRef(flightConfig);
     const { playRepeat, playMode } = flightConfig;
@@ -17,9 +20,7 @@ function useFlightPlayer(flightId: string, flightConfig: FlightConfig) {
     const onUasUpdated = useRecoilCallback(
         ({ set }) => (uasId: string, uas: UAS) => {
             set(uasAtomFamily(uasId), uas);
-            set(uasIdsAtom, (uasIds) =>
-                uasIds.indexOf(uasId) < 0 ? uasIds.concat([uasId]) : uasIds
-            );
+            set(uasIdsAtom, (uasIds) => appendIfNotPresent(uasIds, uasId));
         },
         []
     );
@@ -72,41 +73,6 @@ function useFlightPlayer(flightId: string, flightConfig: FlightConfig) {
                 break;
         }
     }, [playMode]);
-}
 
-function useFlightPath(flightId: string, flightConfig: FlightConfig) {
-    const flightMap = useFlightMap();
-    const path = flightConfig.path;
-
-    useEffect(() => {
-        if (flightMap) {
-            flightMap.updatePath(flightId, path);
-        }
-    }, [flightId, flightMap, path]);
-
-    useEffect(() => {
-        if (flightMap) {
-            return () => {
-                flightMap.removePath(flightId);
-            };
-        }
-    }, [flightId, flightMap]);
-}
-
-export function FlightPath({ flightId }: Props) {
-    const flightConfig = useRecoilValue(flightConfigAtomFamily(flightId));
-    useFlightPlayer(flightId, flightConfig);
-    useFlightPath(flightId, flightConfig);
     return null;
-}
-
-export function FlightPaths() {
-    const flightIds = useRecoilValue(flightIdsAtom);
-    return (
-        <>
-            {flightIds.map((flightId) => (
-                <FlightPath key={flightId} flightId={flightId} />
-            ))}
-        </>
-    );
 }

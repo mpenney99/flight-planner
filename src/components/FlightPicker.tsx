@@ -33,7 +33,7 @@ export function FlightPicker() {
 
     return (
         <div className="d-flex justify-content-between">
-            <DropdownButton className="mr-2" title="Active Flight">
+            <DropdownButton className="mr-2" title="Selected Flight">
                 {flightIds.map((flightId) => (
                     <FlightOption key={flightId} flightId={flightId} onSelect={onSelectFlight} />
                 ))}

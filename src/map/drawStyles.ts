@@ -248,7 +248,8 @@ export const DRAW_STYLES = [
         type: 'line',
         filter: ['all', ['==', '$type', 'LineString'], ['has', 'user_lineColor']],
         paint: {
-            'line-color': ['get', 'user_lineColor']
+            'line-color': ['get', 'user_lineColor'],
+            'line-width': 2
         }
     }
 ];

@@ -6,7 +6,7 @@ import { FlightConfig, Point, UAS } from '../types';
 import { update_interval } from '../config.json';
 import { Subject } from 'rxjs';
 
-const KM_TO_KNOTS = 1.852;
+const MS_TO_KNOTS = 1.94384;
 
 export enum EventType {
     UAS_UPDATED,
@@ -14,14 +14,14 @@ export enum EventType {
 }
 
 export type Event =
-    | { type: EventType.UAS_UPDATED, uasId: string, uas: UAS } 
+    | { type: EventType.UAS_UPDATED, uasId: string, uas: UAS }
     | { type: EventType.UAS_REMOVED, uasId: string };
 
 export class FlightPlayer {
     private readonly _client: GAClient = new GAClient();
     private readonly _uasId: string;
     private readonly _events = new Subject<Event>();
-    
+
     private _config: FlightConfig;
     private _playRepeat = false;
     private _startTime = 0;
@@ -40,9 +40,9 @@ export class FlightPlayer {
     }
 
     setConfig(config: FlightConfig) {
-        if (config.speedKmh !== this._config.speedKmh) {
+        if (config.speedMs !== this._config.speedMs) {
             const timeMillis = new Date().getTime();
-            this._distOffset = this._getTotalDistanceTravelledKm(timeMillis);
+            this._distOffset = this._getTotalDistanceTravelledMeters(timeMillis);
             this._startTime = timeMillis;
         }
         this._config = config;
@@ -76,7 +76,7 @@ export class FlightPlayer {
         clearInterval(this._handle);
         this._handle = undefined;
         const timeMillis = new Date().getTime();
-        this._distOffset = this._getTotalDistanceTravelledKm(timeMillis);
+        this._distOffset = this._getTotalDistanceTravelledMeters(timeMillis);
     }
 
     stop() {
@@ -92,7 +92,7 @@ export class FlightPlayer {
 
     private _update(): void {
         const timeMillis = new Date().getTime();
-        const totalDistance = this._getTotalDistanceTravelledKm(timeMillis);
+        const totalDistance = this._getTotalDistanceTravelledMeters(timeMillis);
         let position = this._getCurrentPosition(totalDistance);
 
         if (position == null && this._playRepeat) {
@@ -119,7 +119,7 @@ export class FlightPlayer {
                 altitude: this._config.altitude,
                 heading,
                 trueHeading: 0,
-                groundSpeed: this._config.speedKmh / KM_TO_KNOTS,
+                groundSpeed: this._config.speedMs * MS_TO_KNOTS,
                 altitudeReference: 'MSL',
                 source: 'uniflyJsonToFlight',
                 callSign: this._config.callSign,
@@ -131,18 +131,18 @@ export class FlightPlayer {
             this.stop();
         }
     }
-    
+
     private _getCurrentPosition(totalDistance: number): { point: Point, heading: number } | null {
         const path = this._config.path;
 
         for (let i = 0, n = path.length - 1; i < n; i++) {
             const from = path[i];
             const to = path[i + 1];
-            const dist = distance(from, to, { units: 'kilometers' });
+            const dist = distance(from, to, { units: 'meters' });
 
             if (totalDistance <= dist) {
                 const heading = bearing(from, to);
-                const pt = destination(from, totalDistance, heading, { units: 'kilometers' });
+                const pt = destination(from, totalDistance, heading, { units: 'meters' });
                 const point = pt.geometry.coordinates as Point;
 
                 return {
@@ -157,9 +157,9 @@ export class FlightPlayer {
         return null;
     }
 
-    private _getTotalDistanceTravelledKm(timeMillis: number) {
+    private _getTotalDistanceTravelledMeters(timeMillis: number) {
         const deltaMillis = timeMillis - this._startTime;
-        const deltaHours = deltaMillis / (1000 * 60 * 60);  
-        return this._distOffset + deltaHours * this._config.speedKmh;
+        const deltaSeconds = deltaMillis / 1000;
+        return this._distOffset + deltaSeconds * this._config.speedMs;
     }
 }

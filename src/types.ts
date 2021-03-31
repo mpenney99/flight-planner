@@ -12,7 +12,7 @@ export type FlightConfig = {
     playRepeat: boolean;
     transponderId: string;
     callSign: string;
-    speedKmh: number;
+    speedMs: number;
     altitude: number;
     path: Point[];
 };

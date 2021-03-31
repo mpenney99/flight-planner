@@ -9,7 +9,7 @@ export const flightConfigAtomFamily = atomFamily<FlightConfig, string>({
         playRepeat: false,
         transponderId: '',
         callSign: '',
-        speedKmh: 100,
+        speedMs: 20,
         altitude: 30,
         path: []
     }

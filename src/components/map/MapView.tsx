@@ -1,20 +1,26 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
-import { flightConfigAtomFamily, flightIdsAtom, selectedFlightIdAtom } from '../atoms';
-import { FlightMap, EventType } from '../map/FlightMap';
-import { Point } from '../types';
-import { appendIfNotPresent } from '../utils/arrayUtils';
+import {
+    flightConfigAtomFamily,
+    flightIdsAtom,
+    selectedFlightIdAtom,
+    uasIdsAtom
+} from '../../atoms';
+import { Point } from '../../types';
+import { appendIfNotPresent } from '../../utils/arrayUtils';
+import { FlightMap, EventType } from './FlightMap';
+import { FlightPathRenderer } from './FlightPathRenderer';
+import { UasRenderer } from './UasRenderer';
 
-type Props = {
-    onFlightMapCreated: (flightMap: FlightMap) => void;
-};
-
-export function MapView({ onFlightMapCreated }: Props) {
-    const flightId = useRecoilValue(selectedFlightIdAtom);
+export function MapView() {
+    const selectedFlightId = useRecoilValue(selectedFlightIdAtom);
+    const flightIds = useRecoilValue(flightIdsAtom);
+    const uasIds = useRecoilValue(uasIdsAtom);
     const containerRef = useRef<HTMLDivElement>(null);
-    const callbackRef = useRef(onFlightMapCreated);
+    const [flightMap, setFlightMap] = useState<FlightMap>();
 
-    // handle a new path was added to the map
+    // handle map events, update recoil state
+
     const onFlightPathCreated = useRecoilCallback(
         ({ set }) => (featureId: string, path: Point[], lineColor: string) => {
             set(flightIdsAtom, (ids) => appendIfNotPresent(ids, featureId));
@@ -27,7 +33,6 @@ export function MapView({ onFlightMapCreated }: Props) {
         []
     );
 
-    // handle a path was updated on the map
     const onFlightPathUpdated = useRecoilCallback(
         ({ set }) => (featureId: string, path: Point[]) => {
             set(flightConfigAtomFamily(featureId), (config) => ({
@@ -38,25 +43,24 @@ export function MapView({ onFlightMapCreated }: Props) {
         []
     );
 
-    // handle a path was removed from the map
     const onFlightPathDeleted = useRecoilCallback(
         ({ set, reset, snapshot }) => async (featureId: string) => {
             const flightIds = await snapshot.getPromise(flightIdsAtom);
             const flightIdsFiltered = flightIds.filter((id) => id !== featureId);
 
-            // remove the flight id from the list
+            // remove the flight id
             set(flightIdsAtom, flightIdsFiltered);
+
+            // update the current selection
             set(selectedFlightIdAtom, (id) =>
                 id === featureId ? flightIdsFiltered[flightIdsFiltered.length - 1] ?? null : id
             );
 
-            // clear the flight config
+            // clear the flight state
             reset(flightConfigAtomFamily(featureId));
         },
         []
     );
-
-    // handle flight path was selected
     const onFlightPathSelected = useRecoilCallback(
         ({ set }) => (featureId: string) => {
             set(selectedFlightIdAtom, featureId);
@@ -64,12 +68,9 @@ export function MapView({ onFlightMapCreated }: Props) {
         []
     );
 
-    const flightMapRef = useRef<FlightMap>();
     useEffect(() => {
         const flightMap = new FlightMap(containerRef.current!);
-        flightMapRef.current = flightMap;
 
-        // handle flightmap events
         flightMap.events.subscribe((event) => {
             switch (event.type) {
                 case EventType.PATH_CREATED:
@@ -87,15 +88,27 @@ export function MapView({ onFlightMapCreated }: Props) {
             }
         });
 
-        callbackRef.current(flightMap);
+        setFlightMap(flightMap);
     }, [onFlightPathCreated, onFlightPathDeleted, onFlightPathUpdated, onFlightPathSelected]);
 
     // update the selected path on the map
     useEffect(() => {
-        if (flightId) {
-            flightMapRef.current!.selectPath(flightId);
+        if (selectedFlightId && flightMap) {
+            flightMap.selectPath(selectedFlightId);
         }
-    }, [flightId]);
+    }, [selectedFlightId, flightMap]);
 
-    return <div className="flex-grow-1" ref={containerRef} />;
+    return (
+        <>
+            <div className="flex-grow-1" ref={containerRef} />
+            {flightMap &&
+                flightIds.map((flightId) => (
+                    <FlightPathRenderer key={flightId} flightId={flightId} flightMap={flightMap} />
+                ))}
+            {flightMap &&
+                uasIds.map((uasId) => (
+                    <UasRenderer key={uasId} uasId={uasId} flightMap={flightMap} />
+                ))}
+        </>
+    );
 }

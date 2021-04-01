@@ -1,4 +1,4 @@
-import { unifly } from '../config.json';
+import { unifly } from '../../config.json';
 
 export type Track = {
     latitude: number;

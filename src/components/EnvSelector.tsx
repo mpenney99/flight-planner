@@ -5,7 +5,7 @@ import { envs, getEnvById } from '../utils/environment';
 
 export function EnvSelector() {
     const [selectedEnvId, setSelectedEnvId] = useRecoilState(selectedEnvAtom);
-    const selectedEnvName = getEnvById(envs, selectedEnvId);
+    const selectedEnvName = getEnvById(envs, selectedEnvId)?.name;
 
     return (
         <Dropdown>

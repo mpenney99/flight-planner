@@ -5,6 +5,7 @@ import { GAClient } from './GAClient';
 import { FlightConfig, Point, UAS } from '../../types';
 import { update_interval } from '../../config.json';
 import { Subject } from 'rxjs';
+import { Env } from '../../utils/environment';
 
 const MS_TO_KNOTS = 1.94384;
 
@@ -20,6 +21,7 @@ export type Event =
     | { type: EventType.UAS_REMOVED, uasId: string };
 
 export class FlightPlayer {
+
     private readonly _client: GAClient = new GAClient();
     private readonly _uasId: string;
     private readonly _events = new Subject<Event>();
@@ -30,11 +32,14 @@ export class FlightPlayer {
     private _distOffset = 0;
     private _sequence = 0;
     private _handle: any;
+    private _env: Env;
 
-    constructor(uasId: string, config: FlightConfig) {
+    constructor(uasId: string, config: FlightConfig, env: Env) {
         this._uasId = uasId;
         this._config = config;
+        this._env = env;
         this._update = this._update.bind(this);
+
     }
 
     get events() {
@@ -52,6 +57,10 @@ export class FlightPlayer {
         }
 
         this._config = config;
+    }
+
+    setEnv(env: Env) {
+        this._env = env;
     }
 
     setPlayRepeat(playRepeat: boolean) {
@@ -136,7 +145,8 @@ export class FlightPlayer {
                 source: 'uniflyJsonToFlight',
                 callSign: this._config.callSign,
                 vehicleType: 'UAS',
-                transponderId: this._config.transponderId
+                transponderId: this._config.transponderId,
+                env: this._env
             });
 
         } else {

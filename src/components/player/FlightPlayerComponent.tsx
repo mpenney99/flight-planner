@@ -1,9 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
-import { flightConfigAtomFamily, flightIdsAtom, uasAtomFamily, uasIdsAtom } from '../../atoms';
-import { UAS, PlayMode } from '../../types';
+import {
+    flightConfigAtomFamily,
+    flightIdsAtom,
+    selectedEnvAtom,
+    uasAtomFamily,
+    uasIdsAtom
+} from '../../atoms';
+import { PlayMode, UAS } from '../../types';
 import { appendIfNotPresent } from '../../utils/arrayUtils';
-import { FlightPlayer, EventType } from './FlightPlayer';
+import { envs, getEnvById } from '../../utils/environment';
+import { EventType, FlightPlayer } from './FlightPlayer';
 
 type Props = {
     flightId: string;
@@ -11,8 +18,10 @@ type Props = {
 
 export function FlightPlayerComponent({ flightId }: Props) {
     const flightConfig = useRecoilValue(flightConfigAtomFamily(flightId));
+    const selectedEnvId = useRecoilValue(selectedEnvAtom);
     const flightPlayer = useRef<FlightPlayer>();
     const initialFlightConfig = useRef(flightConfig);
+    const initialSelectedEnvId = useRef(selectedEnvId);
     const { playRepeat, playMode } = flightConfig;
 
     // handle flight player events, update recoil state
@@ -41,7 +50,8 @@ export function FlightPlayerComponent({ flightId }: Props) {
     );
 
     useEffect(() => {
-        const fp = new FlightPlayer(flightId, initialFlightConfig.current);
+        const selectedEnv = getEnvById(envs, initialSelectedEnvId.current)!;
+        const fp = new FlightPlayer(flightId, initialFlightConfig.current, selectedEnv);
         flightPlayer.current = fp;
 
         fp.events.subscribe((event) => {
@@ -62,6 +72,11 @@ export function FlightPlayerComponent({ flightId }: Props) {
             fp.stop();
         };
     }, [flightId, onUasCreated, onUasUpdated, onUasRemoved]);
+
+    useEffect(() => {
+        const selectedEnv = getEnvById(envs, selectedEnvId)!;
+        flightPlayer.current!.setEnv(selectedEnv);
+    }, [selectedEnvId]);
 
     useEffect(() => {
         flightPlayer.current!.setConfig(flightConfig);

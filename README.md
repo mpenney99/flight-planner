@@ -17,9 +17,5 @@ Ensure that https://www.npmjs.com/package/windows-build-tools is installed
 
 # Configuration
 
-You can configure the environment the app will run against by changing the "proxy" entry in `package.json` (by default it will be running against https://portal.uniflydemo31-dev.unifly.tech).
-
-Note that when you change the proxy, you might also need to change the API key (in config.json).
-
-For other configuration options, see `src/config.json`
+For configuration options, see `src/config.json`
 

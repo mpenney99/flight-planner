@@ -1,4 +1,4 @@
-import { unifly } from '../../config.json';
+import { Env, getEnvUrl } from "../../utils/environment";
 
 export type Track = {
     latitude: number;
@@ -13,6 +13,7 @@ export type Track = {
     callSign: string;
     vehicleType: string;
     transponderId: string;
+    env: Env
 };
 
 export class GAClient {
@@ -28,7 +29,8 @@ export class GAClient {
         source,
         callSign,
         vehicleType,
-        transponderId
+        transponderId,
+        env
     }: Track) {
         const body = JSON.stringify([
             {
@@ -54,11 +56,11 @@ export class GAClient {
                     groundSpeed: groundSpeed
                 },
                 identification: transponderId ? transponderId : 'UNKNOWN',
-                apiKey: unifly.api_key
+                apiKey: env.apiKey
             }
         ]);
 
-        return fetch('/api/tracking', {
+        return fetch(getEnvUrl(env), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

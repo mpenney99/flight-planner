@@ -19,3 +19,15 @@ Ensure that https://www.npmjs.com/package/windows-build-tools is installed
 
 For configuration options, see `src/config.json`
 
+# Docker
+
+This project has a docker file for creating a Docker image containing an expressJS server which serves up the Flight Planner UI and deals with proxying.
+
+To test the container the following command from the root of this project
+
+```
+docker-compose up --build
+```
+
+Will run at http://localhost:3001
+

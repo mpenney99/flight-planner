@@ -1,11 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
-import { flightConfigAtomFamily, uasAtomFamily, uasIdsAtom } from '../atoms';
-import { FlightPlayer, EventType } from '../player/FlightPlayer';
-import { UAS, PlayMode } from '../types';
-import { appendIfNotPresent } from '../utils/arrayUtils';
-
-// plays the flight, updates the position of the UAS
+import { flightConfigAtomFamily, flightIdsAtom, uasAtomFamily, uasIdsAtom } from '../../atoms';
+import { UAS, PlayMode } from '../../types';
+import { appendIfNotPresent } from '../../utils/arrayUtils';
+import { FlightPlayer, EventType } from './FlightPlayer';
 
 type Props = {
     flightId: string;
@@ -17,10 +15,19 @@ export function FlightPlayerComponent({ flightId }: Props) {
     const initialFlightConfig = useRef(flightConfig);
     const { playRepeat, playMode } = flightConfig;
 
-    const onUasUpdated = useRecoilCallback(
+    // handle flight player events, update recoil state
+
+    const onUasCreated = useRecoilCallback(
         ({ set }) => (uasId: string, uas: UAS) => {
             set(uasAtomFamily(uasId), uas);
             set(uasIdsAtom, (uasIds) => appendIfNotPresent(uasIds, uasId));
+        },
+        []
+    );
+
+    const onUasUpdated = useRecoilCallback(
+        ({ set }) => (uasId: string, uas: UAS) => {
+            set(uasAtomFamily(uasId), uas);
         },
         []
     );
@@ -36,8 +43,12 @@ export function FlightPlayerComponent({ flightId }: Props) {
     useEffect(() => {
         const fp = new FlightPlayer(flightId, initialFlightConfig.current);
         flightPlayer.current = fp;
+
         fp.events.subscribe((event) => {
             switch (event.type) {
+                case EventType.UAS_CREATED:
+                    onUasCreated(event.uasId, event.uas);
+                    break;
                 case EventType.UAS_UPDATED:
                     onUasUpdated(event.uasId, event.uas);
                     break;
@@ -50,7 +61,7 @@ export function FlightPlayerComponent({ flightId }: Props) {
         return () => {
             fp.stop();
         };
-    }, [flightId, onUasRemoved, onUasUpdated]);
+    }, [flightId, onUasCreated, onUasUpdated, onUasRemoved]);
 
     useEffect(() => {
         flightPlayer.current!.setConfig(flightConfig);
@@ -74,5 +85,17 @@ export function FlightPlayerComponent({ flightId }: Props) {
         }
     }, [playMode]);
 
+    // don't render anything
     return null;
+}
+
+export function FlightPlayerComponents() {
+    const flightIds = useRecoilValue(flightIdsAtom);
+    return (
+        <>
+            {flightIds.map((flightId) => (
+                <FlightPlayerComponent key={flightId} flightId={flightId} />
+            ))}
+        </>
+    );
 }

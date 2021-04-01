@@ -2,18 +2,20 @@ import distance from '@turf/distance';
 import bearing from '@turf/bearing';
 import destination from '@turf/destination';
 import { GAClient } from './GAClient';
-import { FlightConfig, Point, UAS } from '../types';
-import { update_interval } from '../config.json';
+import { FlightConfig, Point, UAS } from '../../types';
+import { update_interval } from '../../config.json';
 import { Subject } from 'rxjs';
 
 const MS_TO_KNOTS = 1.94384;
 
 export enum EventType {
+    UAS_CREATED,
     UAS_UPDATED,
     UAS_REMOVED
 }
 
 export type Event =
+    | { type: EventType.UAS_CREATED, uasId: string, uas: UAS }
     | { type: EventType.UAS_UPDATED, uasId: string, uas: UAS }
     | { type: EventType.UAS_REMOVED, uasId: string };
 
@@ -41,10 +43,14 @@ export class FlightPlayer {
 
     setConfig(config: FlightConfig) {
         if (config.speedMs !== this._config.speedMs) {
+            // if the speed changed while the flight is in motion, record the current
+            // distance so future updates will be calculated relative to that point
+
             const timeMillis = new Date().getTime();
             this._distOffset = this._getTotalDistanceTravelledMeters(timeMillis);
             this._startTime = timeMillis;
         }
+
         this._config = config;
     }
 
@@ -53,21 +59,22 @@ export class FlightPlayer {
     }
 
     play() {
-        const now = new Date().getTime();
-        this._startTime = now;
+        this._startTime = new Date().getTime();
         this._handle = setInterval(this._update, update_interval);
 
-        // check if we're paused
         if (this._distOffset !== 0) {
+            // paused
             return;
         }
 
+        // stopped
         this._sequence = 0;
         this._events.next({
-            type: EventType.UAS_UPDATED,
+            type: EventType.UAS_CREATED,
             uasId: this._uasId,
             uas: {
-                position: this._config.path[0]
+                position: this._config.path[0],
+
             }
         });
     }
@@ -80,10 +87,12 @@ export class FlightPlayer {
     }
 
     stop() {
+        // reset state
         clearInterval(this._handle);
         this._handle = undefined;
         this._distOffset = 0;
 
+        // notify observers
         this._events.next({
             type: EventType.UAS_REMOVED,
             uasId: this._uasId
@@ -95,6 +104,7 @@ export class FlightPlayer {
         const totalDistance = this._getTotalDistanceTravelledMeters(timeMillis);
         let position = this._getCurrentPosition(totalDistance);
 
+        // replay the track
         if (position == null && this._playRepeat) {
             this._startTime = timeMillis;
             this._distOffset = 0;
@@ -104,6 +114,7 @@ export class FlightPlayer {
         if (position) {
             const { point, heading } = position;
 
+            // notify observers
             this._events.next({
                 type: EventType.UAS_UPDATED,
                 uasId: this._uasId,
@@ -112,6 +123,7 @@ export class FlightPlayer {
                 }
             });
 
+            // send the API request
             this._client.sendTrack({
                 longitude: point[0],
                 latitude: point[1],
@@ -135,6 +147,7 @@ export class FlightPlayer {
     private _getCurrentPosition(totalDistance: number): { point: Point, heading: number } | null {
         const path = this._config.path;
 
+        // given a distance, find the corresponding position on the track
         for (let i = 0, n = path.length - 1; i < n; i++) {
             const from = path[i];
             const to = path[i + 1];
@@ -154,6 +167,7 @@ export class FlightPlayer {
             totalDistance -= dist;
         }
 
+        // return null, we reached the end of the track
         return null;
     }
 

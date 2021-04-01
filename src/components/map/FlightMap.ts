@@ -2,8 +2,8 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import mapboxgl from 'mapbox-gl';
 import { Subject } from 'rxjs';
-import { Point, UAS } from '../types';
-import { mapbox_access_token } from '../config.json';
+import { Point, UAS } from '../../types';
+import { mapbox_access_token } from '../../config.json';
 import { DRAW_STYLES } from './drawStyles';
 import chroma from 'chroma-js';
 

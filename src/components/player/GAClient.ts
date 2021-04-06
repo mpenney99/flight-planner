@@ -58,7 +58,7 @@ export class GAClient {
             }
         ]);
 
-        return fetch('/api/tracking', {
+        return fetch('https://portal.uniflydemo31-dev.unifly.tech/api/tracking', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

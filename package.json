@@ -1,5 +1,6 @@
 {
   "name": "flight-planner",
+  "description": "Flight Planner app for Unifly UTM",
   "version": "0.1.0",
   "private": true,
   "main": "main.js",
@@ -14,6 +15,7 @@
     "@turf/distance": "^6.3.0",
     "bootstrap": "^4.6.0",
     "chroma-js": "^2.1.1",
+    "electron-squirrel-startup": "^1.0.0",
     "mapbox-gl": "^2.1.1",
     "react": "^17.0.1",
     "react-bootstrap": "^1.5.0",
@@ -25,6 +27,11 @@
     "web-vitals": "^1.0.1"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.54",
+    "@electron-forge/maker-deb": "^6.0.0-beta.54",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.54",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
+    "@electron-forge/maker-zip": "^6.0.0-beta.54",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -42,11 +49,13 @@
     "typescript": "^4.2.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "electron-forge start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "electron": "electron ."
+    "electron": "electron .",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "eslintConfig": {
     "extends": [
@@ -78,5 +87,32 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://portal.uniflydemo31-dev.unifly.tech"
+  "proxy": "https://portal.uniflydemo31-dev.unifly.tech",
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "flight_planner"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {}
+        }
+      ]
+    }
+  }
 }

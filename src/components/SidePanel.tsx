@@ -6,10 +6,12 @@ import { EnvSelector } from './EnvSelector';
 import { FlightDetails } from './FlightDetails';
 import { FlightPicker } from './FlightPicker';
 
+const VERSION = process.env.REACT_APP_VERSION;
+
 export function SidePanel() {
     const selectedFlightId = useRecoilValue(selectedFlightIdAtom);
     return (
-        <div className="bg-light d-flex flex-column justify-content-center" style={{ width: 320 }}>
+        <div className="bg-light d-flex flex-column" style={{ width: 320 }}>
             {/* header */}
             {selectedFlightId && (
                 <div className="p-3">
@@ -27,8 +29,14 @@ export function SidePanel() {
             {selectedFlightId ? (
                 <FlightDetails flightId={selectedFlightId} />
             ) : (
-                <h4 className="text-primary text-center p-3">Draw a path on the map to start</h4>
+                <div className="flex-grow-1 d-flex align-items-center">
+                    <h4 className="text-primary text-center p-3">
+                        Draw a path on the map to start
+                    </h4>
+                </div>
             )}
+            {/* footer */}
+            <div className="p-2 text-secondary">{VERSION}</div>
         </div>
     );
 }

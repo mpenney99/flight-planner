@@ -1,18 +1,20 @@
 import { Dropdown } from 'react-bootstrap';
-import { useRecoilState } from 'recoil';
-import { selectedEnvAtom } from '../atoms';
 import { envs, getEnvById } from '../utils/environment';
 
-export function EnvSelector() {
-    const [selectedEnvId, setSelectedEnvId] = useRecoilState(selectedEnvAtom);
-    const selectedEnvName = getEnvById(envs, selectedEnvId)?.name;
+type Props = {
+    value: string;
+    onChanged: (envId: string) => void;
+};
+
+export function EnvSelector({ value, onChanged }: Props) {
+    const selectedEnvName = getEnvById(envs, value)?.name;
 
     return (
         <Dropdown>
-            <Dropdown.Toggle block>{selectedEnvName}</Dropdown.Toggle>
+            <Dropdown.Toggle>{selectedEnvName}</Dropdown.Toggle>
             <Dropdown.Menu>
                 {envs.map((env) => (
-                    <Dropdown.Item key={env.id} onSelect={() => setSelectedEnvId(env.id)}>
+                    <Dropdown.Item key={env.id} onSelect={() => onChanged(env.id)}>
                         {env.name}
                     </Dropdown.Item>
                 ))}

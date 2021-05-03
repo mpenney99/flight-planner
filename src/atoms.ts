@@ -1,5 +1,5 @@
 import { atom, atomFamily } from 'recoil';
-import { FlightConfig, PlayMode, UAS } from './types';
+import { FlightConfig, PlayMode, Settings, UAS } from './types';
 import { envs } from './utils/environment';
 
 export const flightConfigAtomFamily = atomFamily<FlightConfig, string>({
@@ -38,7 +38,14 @@ export const selectedFlightIdAtom = atom<string | null>({
     default: null
 });
 
-export const selectedEnvAtom = atom<string>({
-    key: 'selectedEnv',
-    default: envs[0].id
+export const showSettingsAtom = atom<boolean>({
+    key: 'showSettings',
+    default: false
+});
+
+export const settingsAtom = atom<Settings>({
+    key: 'settings',
+    default: {
+        envId: envs[0].id
+    }
 });

@@ -20,3 +20,7 @@ export type FlightConfig = {
 export type UAS = {
     position: Point;
 };
+
+export type Settings = {
+    envId: string;
+};

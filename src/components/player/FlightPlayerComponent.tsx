@@ -3,7 +3,7 @@ import { useRecoilCallback, useRecoilValue } from 'recoil';
 import {
     flightConfigAtomFamily,
     flightIdsAtom,
-    selectedEnvAtom,
+    settingsAtom,
     uasAtomFamily,
     uasIdsAtom
 } from '../../atoms';
@@ -18,10 +18,10 @@ type Props = {
 
 export function FlightPlayerComponent({ flightId }: Props) {
     const flightConfig = useRecoilValue(flightConfigAtomFamily(flightId));
-    const selectedEnvId = useRecoilValue(selectedEnvAtom);
+    const { envId } = useRecoilValue(settingsAtom);
     const flightPlayer = useRef<FlightPlayer>();
     const initialFlightConfig = useRef(flightConfig);
-    const initialSelectedEnvId = useRef(selectedEnvId);
+    const initialSelectedEnvId = useRef(envId);
     const { playRepeat, playMode } = flightConfig;
 
     // handle flight player events, update recoil state
@@ -74,9 +74,9 @@ export function FlightPlayerComponent({ flightId }: Props) {
     }, [flightId, onUasCreated, onUasUpdated, onUasRemoved]);
 
     useEffect(() => {
-        const selectedEnv = getEnvById(envs, selectedEnvId)!;
+        const selectedEnv = getEnvById(envs, envId)!;
         flightPlayer.current!.setEnv(selectedEnv);
-    }, [selectedEnvId]);
+    }, [envId]);
 
     useEffect(() => {
         flightPlayer.current!.setConfig(flightConfig);

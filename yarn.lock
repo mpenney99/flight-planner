@@ -9973,7 +9973,7 @@ react-error-overlay@^6.0.9:
 
 react-hook-form@^7.3.6:
   version "7.3.6"
-  resolved "https://unifly.jfrog.io/artifactory/api/npm/npm-remote/react-hook-form/-/react-hook-form-7.3.6.tgz#21da0f1aff834a9ae9f80a604ebbc28c5b229f79"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.3.6.tgz#21da0f1aff834a9ae9f80a604ebbc28c5b229f79"
   integrity sha1-IdoPGv+DSprp+ApgTrvCjFsin3k=
 
 react-is@^16.3.2, react-is@^16.8.1:

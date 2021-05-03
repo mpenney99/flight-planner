@@ -6,19 +6,22 @@
             "name": "demo 3.1 - DEV",
             "id": "demo-31-dev",
             "api": "https://portal.uniflydemo31-dev.unifly.tech",
-            "apiKey": "Unifly_Y123r8R"
+            "apiKey": "Unifly_Y123r8R",
+            "devOnly": false
         },
         {
             "name": "demo 3.2 - DEV",
             "id": "demo-32-dev",
             "api": "https://portal.uniflydemo32-dev.unifly.tech",
-            "apiKey": "Unifly_Y123r8R"
+            "apiKey": "Unifly_Y123r8R",
+            "devOnly": false
         },
         {
             "name": "localhost - 9200",
             "id": "local-3000",
             "api": "http://localhost:9200",
-            "apiKey": "Unifly_Y123r8R"
+            "apiKey": "Unifly_Y123r8R",
+            "devOnly": true
         }
     ]
 }

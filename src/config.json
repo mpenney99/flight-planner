@@ -17,6 +17,20 @@
             "devOnly": false
         },
         {
+            "name": "demo 3.2 - IAT",
+            "id": "demo-32-iat",
+            "api": "https://portal.uniflydemo32-iat.unifly.tech",
+            "apiKey": "Unifly_Y123r8R",
+            "devOnly": false
+        },
+        {
+            "name": "demo 3.1",
+            "id": "demo-31",
+            "api": "https://portal.uniflydemo31.unifly.tech",
+            "apiKey": "Unifly_Y123r8R",
+            "devOnly": false
+        },
+        {
             "name": "localhost - 9200",
             "id": "local-3000",
             "api": "http://localhost:9200",

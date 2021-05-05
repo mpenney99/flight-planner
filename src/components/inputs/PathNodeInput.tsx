@@ -11,6 +11,8 @@ type Props = {
     onRemove: (index: number) => void;
 };
 
+const DECIMAL_DEGREES_DP = 8;
+
 function PathNodeInputInner({ index, value, removeDisabled, onChange, onRemove }: Props) {
     const onLonChanged = (lon: number) => {
         onChange(index, [lon, value[1]]);
@@ -24,11 +26,19 @@ function PathNodeInputInner({ index, value, removeDisabled, onChange, onRemove }
         <div className="d-flex align-items-end mb-2">
             <div className="flex-grow mr-2">
                 {index === 0 ? <FormLabel>Lon</FormLabel> : undefined}
-                <NumberInput value={value[0]} onChange={onLonChanged} />
+                <NumberInput
+                    value={value[0]}
+                    decimalPlaces={DECIMAL_DEGREES_DP}
+                    onChange={onLonChanged}
+                />
             </div>
             <div className="flex-grow mr-2">
                 {index === 0 ? <FormLabel>Lat</FormLabel> : undefined}
-                <NumberInput value={value[1]} onChange={onLatChanged} />
+                <NumberInput
+                    value={value[1]}
+                    decimalPlaces={DECIMAL_DEGREES_DP}
+                    onChange={onLatChanged}
+                />
             </div>
             <div className="mb-2">
                 <CloseButton

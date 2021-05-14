@@ -1,6 +1,6 @@
 {
     "mapbox_access_token": "pk.eyJ1IjoibXBlbm5leTk5IiwiYSI6ImNrbG1paG40YzA5ZjUybnF5aGZobGFlMHcifQ.le-be8-cf0Y9FNt56KYqAw",
-    "update_interval": 500,
+    "update_interval": 1000,
     "environments": [
         {
             "name": "demo 3.1 - DEV",

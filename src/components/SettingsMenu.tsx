@@ -4,6 +4,7 @@ import { useRecoilState } from 'recoil';
 import { settingsAtom, showSettingsAtom } from '../atoms';
 import { Settings } from '../types';
 import { EnvSelector } from './EnvSelector';
+import { NumberInput } from './inputs/NumberInput';
 
 export default function SettingsMenu() {
     const [show, setShow] = useRecoilState(showSettingsAtom);
@@ -34,6 +35,16 @@ export default function SettingsMenu() {
                             <FormGroup>
                                 <FormLabel>Environment</FormLabel>
                                 <EnvSelector value={field.value} onChanged={field.onChange} />
+                            </FormGroup>
+                        )}
+                    />
+                    <Controller
+                        name="updateInterval"
+                        control={control}
+                        render={({ field }) => (
+                            <FormGroup>
+                                <FormLabel>Update Interval (ms)</FormLabel>
+                                <NumberInput value={field.value} onChange={field.onChange} />
                             </FormGroup>
                         )}
                     />

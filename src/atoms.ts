@@ -1,4 +1,5 @@
 import { atom, atomFamily } from 'recoil';
+import { update_interval } from './config.json';
 import { FlightConfig, PlayMode, Settings, UAS } from './types';
 import { envs } from './utils/environment';
 
@@ -46,6 +47,7 @@ export const showSettingsAtom = atom<boolean>({
 export const settingsAtom = atom<Settings>({
     key: 'settings',
     default: {
-        envId: envs[0].id
+        envId: envs[0].id,
+        updateInterval: update_interval
     }
 });

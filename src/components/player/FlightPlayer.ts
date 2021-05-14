@@ -3,7 +3,6 @@ import bearing from '@turf/bearing';
 import destination from '@turf/destination';
 import { GAClient } from './GAClient';
 import { FlightConfig, Point, UAS } from '../../types';
-import { update_interval } from '../../config.json';
 import { Subject } from 'rxjs';
 import { Env } from '../../utils/environment';
 
@@ -27,6 +26,7 @@ export class FlightPlayer {
     private readonly _events = new Subject<Event>();
 
     private _config: FlightConfig;
+    private _updateInterval = 0;
     private _playRepeat = false;
     private _startTime = 0;
     private _distOffset = 0;
@@ -67,9 +67,13 @@ export class FlightPlayer {
         this._playRepeat = playRepeat;
     }
 
+    setUpdateInterval(updateInterval: number) {
+        this._updateInterval = updateInterval;
+    }
+
     play() {
         this._startTime = new Date().getTime();
-        this._handle = setInterval(this._update, update_interval);
+        this._handle = setInterval(this._update, this._updateInterval);
 
         if (this._distOffset !== 0) {
             // paused

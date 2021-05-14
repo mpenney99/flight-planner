@@ -18,7 +18,7 @@ type Props = {
 
 export function FlightPlayerComponent({ flightId }: Props) {
     const flightConfig = useRecoilValue(flightConfigAtomFamily(flightId));
-    const { envId } = useRecoilValue(settingsAtom);
+    const { envId, updateInterval } = useRecoilValue(settingsAtom);
     const flightPlayer = useRef<FlightPlayer>();
     const initialFlightConfig = useRef(flightConfig);
     const initialSelectedEnvId = useRef(envId);
@@ -77,6 +77,10 @@ export function FlightPlayerComponent({ flightId }: Props) {
         const selectedEnv = getEnvById(envs, envId)!;
         flightPlayer.current!.setEnv(selectedEnv);
     }, [envId]);
+
+    useEffect(() => {
+        flightPlayer.current!.setUpdateInterval(updateInterval);
+    }, [updateInterval]);
 
     useEffect(() => {
         flightPlayer.current!.setConfig(flightConfig);

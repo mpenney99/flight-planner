@@ -23,4 +23,5 @@ export type UAS = {
 
 export type Settings = {
     envId: string;
+    updateInterval: number;
 };

@@ -25,7 +25,7 @@
         },
         {
             "name": "demo 3.1",
-            "id": "demo-31",
+            "id": "demo-31-prod",
             "api": "https://portal.uniflydemo31.unifly.tech",
             "apiKey": "Unifly_Y123r8R",
             "devOnly": false

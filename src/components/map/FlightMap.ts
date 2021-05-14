@@ -1,5 +1,8 @@
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+
 import mapboxgl from 'mapbox-gl';
 import { Subject } from 'rxjs';
 import { Point, UAS } from '../../types';
@@ -22,6 +25,11 @@ export type Event =
     | { type: EventType.PATH_UPDATED; featureId: string; path: Point[] }
     | { type: EventType.PATH_DELETED; featureId: string }
 
+const LOCALSTORAGE_KEY_MAP_CENTER = 'map-center';
+const LOCALSTORAGE_KEY_MAP_ZOOM = 'map-zoom';
+const DEFAULT_ZOOM_LEVEL = 9;
+const DEFAULT_CENTER_POINT = mapboxgl.LngLat.convert([4.402771, 51.260197]);
+
 export class FlightMap {
     private readonly _events = new Subject<Event>();
     private readonly _uasMarkers = new Map<string, mapboxgl.Marker>();
@@ -35,8 +43,8 @@ export class FlightMap {
             container,
             // style: 'mapbox://styles/mapbox/streets-v11',
             style: 'mapbox://styles/mapbox/satellite-streets-v11',
-            center: [4.402771, 51.260197],
-            zoom: 9
+            center: this._getInitialCenter(),
+            zoom: this._getInitialZoomLevel()
         });
 
         this._map = map;
@@ -62,6 +70,16 @@ export class FlightMap {
         });
 
         map.addControl(this._draw);
+
+        const geocoder = new MapboxGeocoder({
+            accessToken: mapbox_access_token,
+            mapboxgl: this._map
+        });
+
+        map.addControl(geocoder, 'top-left');
+
+        map.on('zoomend', this._onViewBoundsChanged.bind(this))
+        map.on('moveend', this._onViewBoundsChanged.bind(this))
         map.on('draw.create', this._onDrawCreate.bind(this));
         map.on('draw.update', this._onDrawUpdate.bind(this));
         map.on('draw.delete', this._onDrawDelete.bind(this));
@@ -199,5 +217,28 @@ export class FlightMap {
             },
             properties: {}
         };
+    }
+
+    private _onViewBoundsChanged() {
+        const viewCenter = this._map.getCenter();
+        const viewZoom = this._map.getZoom();
+        localStorage.setItem(LOCALSTORAGE_KEY_MAP_CENTER, JSON.stringify(viewCenter));
+        localStorage.setItem(LOCALSTORAGE_KEY_MAP_ZOOM, JSON.stringify(viewZoom));
+    }
+
+    private _getInitialZoomLevel(): number {
+        const item = localStorage.getItem(LOCALSTORAGE_KEY_MAP_ZOOM);
+        if (item === null) {
+            return DEFAULT_ZOOM_LEVEL;
+        }
+        return parseFloat(item);
+    }
+
+    private _getInitialCenter(): mapboxgl.LngLat {
+        const item = localStorage.getItem(LOCALSTORAGE_KEY_MAP_CENTER);
+        if (item === null) {
+            return DEFAULT_CENTER_POINT;
+        }
+        return JSON.parse(item);
     }
 }

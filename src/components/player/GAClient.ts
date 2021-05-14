@@ -1,4 +1,4 @@
-import { Env, getEnvUrl } from "../../utils/environment";
+import { Env, getEnvUrl } from '../../utils/environment';
 
 export type Track = {
     latitude: number;
@@ -9,11 +9,12 @@ export type Track = {
     trueHeading: number;
     groundSpeed: number;
     altitudeReference: string;
+    altitudeUnit: string;
     source: string;
     callSign: string;
     vehicleType: string;
     transponderId: string;
-    env: Env
+    env: Env;
 };
 
 export class GAClient {
@@ -26,6 +27,7 @@ export class GAClient {
         trueHeading,
         groundSpeed,
         altitudeReference,
+        altitudeUnit,
         source,
         callSign,
         vehicleType,
@@ -44,6 +46,7 @@ export class GAClient {
                 },
                 altitude: {
                     altitude: altitude,
+                    unit: altitudeUnit,
                     reference: altitudeReference || 'MSL'
                 },
                 callSign: callSign || 'OO-UNIFLY',

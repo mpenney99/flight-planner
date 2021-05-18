@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useToasts } from 'react-toast-notifications';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 import {
     flightConfigAtomFamily,
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export function FlightPlayerComponent({ flightId }: Props) {
+    const { addToast } = useToasts();
     const flightConfig = useRecoilValue(flightConfigAtomFamily(flightId));
     const { envId, updateInterval } = useRecoilValue(settingsAtom);
     const flightPlayer = useRef<FlightPlayer>();
@@ -65,13 +67,16 @@ export function FlightPlayerComponent({ flightId }: Props) {
                 case EventType.UAS_REMOVED:
                     onUasRemoved(event.uasId);
                     break;
+                case EventType.API_ERROR:
+                    addToast(event.error, { appearance: 'error', autoDismiss: true });
+                    break;
             }
         });
 
         return () => {
             fp.stop();
         };
-    }, [flightId, onUasCreated, onUasUpdated, onUasRemoved]);
+    }, [flightId, onUasCreated, onUasUpdated, onUasRemoved, addToast]);
 
     useEffect(() => {
         const selectedEnv = getEnvById(envs, envId)!;

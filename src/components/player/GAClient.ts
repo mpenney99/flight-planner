@@ -70,8 +70,6 @@ export class GAClient {
                 Accept: 'application/json'
             },
             body
-        }).catch((reject) => {
-            console.log(reject);
         });
     }
 }

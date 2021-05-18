@@ -1,3 +1,4 @@
+import { ToastProvider } from 'react-toast-notifications';
 import { RecoilRoot } from 'recoil';
 import SettingsMenu from './components/SettingsMenu';
 import { SidePanel } from './components/SidePanel';
@@ -7,12 +8,14 @@ import { FlightPlayerComponents } from './components/player/FlightPlayerComponen
 function App() {
     return (
         <RecoilRoot>
-            <div className="app">
-                <SidePanel />
-                <MapView />
-                <FlightPlayerComponents />
-                <SettingsMenu />
-            </div>
+            <ToastProvider>
+                <div className="app">
+                    <SidePanel />
+                    <MapView />
+                    <FlightPlayerComponents />
+                    <SettingsMenu />
+                </div>
+            </ToastProvider>
         </RecoilRoot>
     );
 }

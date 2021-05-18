@@ -11,13 +11,15 @@ const MS_TO_KNOTS = 1.94384;
 export enum EventType {
     UAS_CREATED,
     UAS_UPDATED,
-    UAS_REMOVED
+    UAS_REMOVED,
+    API_ERROR
 }
 
 export type Event =
     | { type: EventType.UAS_CREATED, uasId: string, uas: UAS }
     | { type: EventType.UAS_UPDATED, uasId: string, uas: UAS }
-    | { type: EventType.UAS_REMOVED, uasId: string };
+    | { type: EventType.UAS_REMOVED, uasId: string }
+    | { type: EventType.API_ERROR, error: string };
 
 export class FlightPlayer {
 
@@ -137,22 +139,29 @@ export class FlightPlayer {
             });
 
             // send the API request
-            this._client.sendTrack({
-                longitude: point[0],
-                latitude: point[1],
-                sequence: this._sequence++,
-                altitude: this._config.altitude,
-                altitudeUnit: 'm',
-                altitudeReference: 'MSL',
-                heading,
-                trueHeading: 0,
-                groundSpeed: this._config.speedMs * MS_TO_KNOTS,
-                source: 'uniflyJsonToFlight',
-                callSign: this._config.callSign,
-                vehicleType: 'UAS',
-                transponderId: this._config.transponderId,
-                env: this._env
-            });
+            this._client
+                .sendTrack({
+                    longitude: point[0],
+                    latitude: point[1],
+                    sequence: this._sequence++,
+                    altitude: this._config.altitude,
+                    altitudeUnit: 'm',
+                    altitudeReference: 'MSL',
+                    heading,
+                    trueHeading: 0,
+                    groundSpeed: this._config.speedMs * MS_TO_KNOTS,
+                    source: 'uniflyJsonToFlight',
+                    callSign: this._config.callSign,
+                    vehicleType: 'UAS',
+                    transponderId: this._config.transponderId,
+                    env: this._env
+                })
+                .then((res) => {
+                    if (res.status !== 200) {
+                        const error = `API Error - ${res.statusText}`;
+                        this._events.next({ type: EventType.API_ERROR, error });
+                    }
+                });
 
         } else {
             this.stop();

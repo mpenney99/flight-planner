@@ -20,7 +20,6 @@ COPY ./server/yarn.lock ./
 
 RUN npx yarn
 
-COPY ./lib/proxy.js ./../lib/proxy.js
 COPY ./src/config.json ./../src/config.json
 COPY ./server/ ./
 COPY --from=builder ./app/build ./static

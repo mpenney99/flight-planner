@@ -38,6 +38,13 @@
             "devOnly": false
         },
         {
+            "name": "neom - IAT",
+            "id": "neom-iat",
+            "api": "https://portal.neom-iat.unifly.tech",
+            "apiKey": "BLIP_kjTr745",
+            "devOnly": false
+        },
+        {
             "name": "localhost - 9200",
             "id": "local-3000",
             "api": "http://localhost:9200",

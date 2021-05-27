@@ -6,6 +6,12 @@ Flight-planner is a tool for quickly creating and vizualizing flight simulations
 
 * Use the correct node version (v15). We recommend using [nvm](https://github.com/creationix/nvm) (`nvm install` or `nvm use`).
 * Install yarn: https://classic.yarnpkg.com/en/docs/install#windows-stable
+
+## Start Backend-end
+* Go into server dir - `cd server`
+* Install project dependencies - `yarn install`
+* Start the app - `yarn start`
+## Start Front-end
 * Install project dependencies - `yarn install`
 * Start the app - `yarn start`
 

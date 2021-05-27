@@ -45,6 +45,20 @@
             "devOnly": false
         },
         {
+            "name": "neom - DEV",
+            "id": "neom-iat",
+            "api": "https://portal.neom-dev.unifly.tech",
+            "apiKey": "BLIP_kjTr745",
+            "devOnly": false
+        },
+        {
+            "name": "neom - UAT",
+            "id": "neom-iat",
+            "api": "https://portal.neom-uat.unifly.tech",
+            "apiKey": "BLIP_kjTr745",
+            "devOnly": false
+        },
+        {
             "name": "localhost - 9200",
             "id": "local-3000",
             "api": "http://localhost:9200",

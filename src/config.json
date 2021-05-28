@@ -46,14 +46,14 @@
         },
         {
             "name": "neom - DEV",
-            "id": "neom-iat",
+            "id": "neom-dev",
             "api": "https://portal.neom-dev.unifly.tech",
             "apiKey": "BLIP_kjTr745",
             "devOnly": false
         },
         {
             "name": "neom - UAT",
-            "id": "neom-iat",
+            "id": "neom-uat",
             "api": "https://portal.neom-uat.unifly.tech",
             "apiKey": "BLIP_kjTr745",
             "devOnly": false

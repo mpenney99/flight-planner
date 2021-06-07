@@ -1,7 +1,9 @@
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import { MapboxStyleDefinition, MapboxStyleSwitcherControl } from 'mapbox-gl-style-switcher';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import "mapbox-gl-style-switcher/styles.css";
 
 import mapboxgl from 'mapbox-gl';
 import { Subject } from 'rxjs';
@@ -41,8 +43,7 @@ export class FlightMap {
     constructor(container: HTMLElement) {
         const map = new mapboxgl.Map({
             container,
-            // style: 'mapbox://styles/mapbox/streets-v11',
-            style: 'mapbox://styles/mapbox/satellite-streets-v11',
+            style: 'mapbox://styles/mapbox/streets-v11',
             center: this._getInitialCenter(),
             zoom: this._getInitialZoomLevel()
         });
@@ -77,6 +78,15 @@ export class FlightMap {
         });
 
         map.addControl(geocoder, 'top-left');
+
+        const styles: MapboxStyleDefinition[] = [
+            { title: 'Streets', uri: 'mapbox://styles/mapbox/streets-v11' },
+            { title: 'Satellite', uri: 'mapbox://styles/mapbox/satellite-streets-v11' }
+        ];
+
+        map.addControl(new MapboxStyleSwitcherControl(styles, {
+            defaultStyle: 'Streets'
+        }));
 
         map.on('zoomend', this._onViewBoundsChanged.bind(this))
         map.on('moveend', this._onViewBoundsChanged.bind(this))

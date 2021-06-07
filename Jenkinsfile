@@ -20,7 +20,7 @@ pipeline {
     }
 
     environment {
-        GIT_REPO = 'https://github.com/unifly-aero/unifly-flight-planner.git'
+        GIT_REPO = 'https://github.com/unifly-aero/flight-planner.git'
         CREDENTIALS_ID = 'unifly-jenkins'
         JAVA_HOME="${tool 'openjdk-11'}"
         NODE_HOME="${tool 'nodejs-12'}"

@@ -48,6 +48,15 @@ pipeline {
                 }
             }
         }
+
+        stage('Restart Web-App') {
+            when { not { changeRequest() } }
+            steps {
+                script {
+                     sh 'az webapp restart --name flight-planner -g flight-planner --subscription Pay-As-You-Go-Dev'
+                }
+            }
+        }
     }
 
     post {

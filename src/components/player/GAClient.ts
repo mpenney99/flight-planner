@@ -49,7 +49,7 @@ export class GAClient {
                     unit: altitudeUnit,
                     reference: altitudeReference || 'MSL'
                 },
-                callSign: callSign || 'OO-UNIFLY',
+                callSign,
                 vehicleType: vehicleType || 'AIRPLANE',
                 heading: {
                     trueHeading: trueHeading,

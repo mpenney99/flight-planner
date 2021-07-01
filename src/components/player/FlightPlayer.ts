@@ -154,6 +154,7 @@ export class FlightPlayer {
                     callSign: this._config.callSign,
                     vehicleType: 'UAS',
                     transponderId: this._config.transponderId,
+                    securityGroup: this._config.securityGroup,
                     env: this._env
                 })
                 .then((res) => {

@@ -38,6 +38,10 @@ export function FlightDetails({ flightId }: Props) {
         setFlightConfig((config) => ({ ...config, altitude: altitudeKm }));
     };
 
+    const onSecurityGroupChanged = (securityGroup: string) => {
+        setFlightConfig((config) => ({ ...config, securityGroup }));
+    };
+
     const onAddPathNode = () => {
         setFlightConfig((config) => ({
             ...config,
@@ -103,6 +107,10 @@ export function FlightDetails({ flightId }: Props) {
                             <InputGroup.Text>m/s</InputGroup.Text>
                         </InputGroup.Append>
                     </InputGroup>
+                </Form.Group>
+                <Form.Group>
+                    <Form.Label>Security Group</Form.Label>
+                    <TextInput value={flightConfig.securityGroup} onChange={onSecurityGroupChanged} />
                 </Form.Group>
                 <Form.Group>
                     {flightConfig.path.map((pathNode, i, arr) => (

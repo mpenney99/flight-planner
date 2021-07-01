@@ -14,6 +14,7 @@ export type Track = {
     callSign: string;
     vehicleType: string;
     transponderId: string;
+    securityGroup: string;
     env: Env;
 };
 
@@ -32,6 +33,7 @@ export class GAClient {
         callSign,
         vehicleType,
         transponderId,
+        securityGroup,
         env
     }: Track) {
         const body = JSON.stringify([
@@ -59,6 +61,7 @@ export class GAClient {
                     groundSpeed: groundSpeed
                 },
                 identification: transponderId ? transponderId : 'UNKNOWN',
+                securityGroup: securityGroup,
                 apiKey: env.apiKey
             }
         ]);

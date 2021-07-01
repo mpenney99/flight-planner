@@ -13,7 +13,8 @@ export const flightConfigAtomFamily = atomFamily<FlightConfig, string>({
         callSign: '',
         speedMs: 20,
         altitude: 30,
-        path: []
+        path: [],
+        securityGroup: ''
     }
 });
 

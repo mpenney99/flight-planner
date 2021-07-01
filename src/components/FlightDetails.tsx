@@ -37,10 +37,6 @@ export function FlightDetails({ flightId }: Props) {
         setFlightConfig((config) => ({ ...config, speedMs }));
     };
 
-    const onAltitudeChanged = (altitudeKm: number) => {
-        setFlightConfig((config) => ({ ...config, altitude: altitudeKm }));
-    };
-
     const onSecurityGroupChanged = (securityGroup: string) => {
         setFlightConfig((config) => ({ ...config, securityGroup }));
     };
@@ -96,15 +92,6 @@ export function FlightDetails({ flightId }: Props) {
                 <Form.Group>
                     <Form.Label>Call-sign</Form.Label>
                     <TextInput value={flightConfig.callSign} onChange={onCallSignChanged} />
-                </Form.Group>
-                <Form.Group>
-                    <Form.Label>Altitude</Form.Label>
-                    <InputGroup>
-                        <NumberInput value={flightConfig.altitude} onChange={onAltitudeChanged} />
-                        <InputGroup.Append>
-                            <InputGroup.Text>m</InputGroup.Text>
-                        </InputGroup.Append>
-                    </InputGroup>
                 </Form.Group>
                 <Form.Group>
                     <Form.Label>Speed</Form.Label>

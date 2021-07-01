@@ -1,4 +1,8 @@
-export type Point = [lon: number, lat: number];
+export type Point = {
+    lon: number;
+    lat: number;
+    alt: number;
+};
 
 export enum PlayMode {
     PLAYING = 'playing',
@@ -19,7 +23,6 @@ export type FlightConfig = {
     transponderId: string;
     callSign: string;
     speedMs: number;
-    altitude: number;
     securityGroup: string;
     vehicleType: VehicleType;
     path: Point[];

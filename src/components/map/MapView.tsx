@@ -8,8 +8,10 @@ import {
 } from '../../atoms';
 import { Point } from '../../types';
 import { appendIfNotPresent } from '../../utils/arrayUtils';
-import { FlightMap, EventType } from './FlightMap';
-import { FlightPathRenderer } from './FlightPathRenderer';
+import { FlightMap } from './FlightMap';
+import { EventType as PathEventType } from './FlightMapPathsLayer';
+import { EventType as UASEventType } from './FlightMapUASLayer';
+import { PathRenderer } from './PathRenderer';
 import { UasRenderer } from './UasRenderer';
 
 export function MapView() {
@@ -22,79 +24,97 @@ export function MapView() {
     // handle map events, update recoil state
 
     const onFlightPathCreated = useRecoilCallback(
-        ({ set }) => (featureId: string, path: Point[], lineColor: string) => {
-            set(flightIdsAtom, (ids) => appendIfNotPresent(ids, featureId));
-            set(flightConfigAtomFamily(featureId), (config) => ({
-                ...config,
-                path,
-                lineColor
-            }));
-        },
+        ({ set }) =>
+            (featureId: string, path: Point[], lineColor: string) => {
+                set(flightIdsAtom, (ids) => appendIfNotPresent(ids, featureId));
+                set(flightConfigAtomFamily(featureId), (config) => ({
+                    ...config,
+                    path,
+                    lineColor
+                }));
+            },
         []
     );
 
     const onFlightPathUpdated = useRecoilCallback(
-        ({ set }) => (featureId: string, path: Point[]) => {
-            set(flightConfigAtomFamily(featureId), (config) => ({
-                ...config,
-                path
-            }));
-        },
+        ({ set }) =>
+            (featureId: string, path: Point[]) => {
+                set(flightConfigAtomFamily(featureId), (config) => ({
+                    ...config,
+                    path
+                }));
+            },
         []
     );
 
     const onFlightPathDeleted = useRecoilCallback(
-        ({ set, reset, snapshot }) => async (featureId: string) => {
-            const flightIds = await snapshot.getPromise(flightIdsAtom);
-            const flightIdsFiltered = flightIds.filter((id) => id !== featureId);
+        ({ set, reset, snapshot }) =>
+            async (featureId: string) => {
+                const flightIds = await snapshot.getPromise(flightIdsAtom);
+                const flightIdsFiltered = flightIds.filter((id) => id !== featureId);
 
-            // remove the flight id
-            set(flightIdsAtom, flightIdsFiltered);
+                // remove the flight id
+                set(flightIdsAtom, flightIdsFiltered);
 
-            // update the current selection
-            set(selectedFlightIdAtom, (id) =>
-                id === featureId ? flightIdsFiltered[flightIdsFiltered.length - 1] ?? null : id
-            );
+                // update the current selection
+                set(selectedFlightIdAtom, (id) =>
+                    id === featureId ? flightIdsFiltered[flightIdsFiltered.length - 1] ?? null : id
+                );
 
-            // clear the flight state
-            reset(flightConfigAtomFamily(featureId));
-        },
+                // clear the flight state
+                reset(flightConfigAtomFamily(featureId));
+            },
         []
     );
     const onFlightPathSelected = useRecoilCallback(
-        ({ set }) => (featureId: string) => {
-            set(selectedFlightIdAtom, featureId);
-        },
+        ({ set }) =>
+            (featureId: string) => {
+                set(selectedFlightIdAtom, featureId);
+            },
         []
     );
 
+    // setup event handlers
     useEffect(() => {
         const flightMap = new FlightMap(containerRef.current!);
 
-        flightMap.events.subscribe((event) => {
+        const pathLayerSub = flightMap.pathsLayer.subscribe((event) => {
             switch (event.type) {
-                case EventType.PATH_CREATED:
-                    onFlightPathCreated(event.featureId, event.path, event.lineColor);
+                case PathEventType.PATH_CREATED:
+                    onFlightPathCreated(event.pathId, event.path, event.pathColor);
                     break;
-                case EventType.PATH_UPDATED:
-                    onFlightPathUpdated(event.featureId, event.path);
+                case PathEventType.PATH_UPDATED:
+                    onFlightPathUpdated(event.pathId, event.path);
                     break;
-                case EventType.PATH_DELETED:
-                    onFlightPathDeleted(event.featureId);
+                case PathEventType.PATH_DELETED:
+                    onFlightPathDeleted(event.pathId);
                     break;
-                case EventType.PATH_SELECTED:
-                    onFlightPathSelected(event.featureId);
+                case PathEventType.PATH_SELECTED:
+                    onFlightPathSelected(event.pathId);
+                    break;
+            }
+        });
+
+        const uasLayerSub = flightMap.uasLayer.subscribe((event) => {
+            switch (event.type) {
+                case UASEventType.UAS_SELECTED:
+                    onFlightPathSelected(event.uasId);
                     break;
             }
         });
 
         setFlightMap(flightMap);
+
+        return () => {
+            pathLayerSub.unsubscribe();
+            uasLayerSub.unsubscribe();
+        };
     }, [onFlightPathCreated, onFlightPathDeleted, onFlightPathUpdated, onFlightPathSelected]);
 
-    // update the selected path on the map
+    // select the path on the map
     useEffect(() => {
         if (selectedFlightId && flightMap) {
-            flightMap.selectPath(selectedFlightId);
+            flightMap.pathsLayer.selectPath(selectedFlightId);
         }
     }, [selectedFlightId, flightMap]);
 
@@ -102,8 +122,8 @@ export function MapView() {
         <>
             <div className="flex-grow-1" ref={containerRef} />
             {flightMap &&
-                flightIds.map((flightId) => (
-                    <FlightPathRenderer key={flightId} flightId={flightId} flightMap={flightMap} />
+                flightIds.map((pathId) => (
+                    <PathRenderer key={pathId} pathId={pathId} flightMap={flightMap} />
                 ))}
             {flightMap &&
                 uasIds.map((uasId) => (

@@ -1,10 +1,11 @@
-import distance from '@turf/distance';
 import bearing from '@turf/bearing';
 import destination from '@turf/destination';
-import { GAClient } from './GAClient';
-import { FlightConfig, Point, UAS } from '../../types';
+import distance from '@turf/distance';
 import { Subject } from 'rxjs';
+import { FlightConfig, Point, UAS } from '../../types';
 import { Env } from '../../utils/environment';
+import { pointToGeoPosition } from '../../utils/geoUtils';
+import { GAClient } from './GAClient';
 
 const MS_TO_KNOTS = 1.94384;
 
@@ -16,13 +17,12 @@ export enum EventType {
 }
 
 export type Event =
-    | { type: EventType.UAS_CREATED, uasId: string, uas: UAS }
-    | { type: EventType.UAS_UPDATED, uasId: string, uas: UAS }
-    | { type: EventType.UAS_REMOVED, uasId: string }
-    | { type: EventType.API_ERROR, error: string };
+    | { type: EventType.UAS_CREATED; uasId: string; uas: UAS }
+    | { type: EventType.UAS_UPDATED; uasId: string; uas: UAS }
+    | { type: EventType.UAS_REMOVED; uasId: string }
+    | { type: EventType.API_ERROR; error: string };
 
 export class FlightPlayer {
-
     private readonly _client: GAClient = new GAClient();
     private readonly _uasId: string;
     private readonly _events = new Subject<Event>();
@@ -87,8 +87,7 @@ export class FlightPlayer {
             type: EventType.UAS_CREATED,
             uasId: this._uasId,
             uas: {
-                position: this._config.path[0],
-
+                position: this._config.path[0]
             }
         });
     }
@@ -140,10 +139,10 @@ export class FlightPlayer {
             // send the API request
             this._client
                 .sendTrack({
-                    longitude: point[0],
-                    latitude: point[1],
+                    longitude: point.lon,
+                    latitude: point.lat,
+                    altitude: point.alt,
                     sequence: this._sequence++,
-                    altitude: this._config.altitude,
                     altitudeUnit: 'm',
                     altitudeReference: 'MSL',
                     heading,
@@ -161,41 +160,46 @@ export class FlightPlayer {
                         const error = `API Error - ${res.statusText}`;
                         this._events.next({ type: EventType.API_ERROR, error });
                     }
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     const error = `Uncaught Error - ${err}`;
                     this._events.next({ type: EventType.API_ERROR, error });
                 });
-
         } else {
             this.stop();
         }
     }
 
-    private _getCurrentPosition(totalDistance: number): { point: Point, heading: number } | null {
+    private _getCurrentPosition(distRemaining: number): { point: Point; heading: number } | null {
         const path = this._config.path;
 
         // given a distance, find the corresponding position on the track
         for (let i = 0, n = path.length - 1; i < n; i++) {
-            const from = path[i];
-            const to = path[i + 1];
+            const from = pointToGeoPosition(path[i]);
+            const to = pointToGeoPosition(path[i + 1]);
             const dist = distance(from, to, { units: 'meters' });
 
-            if (totalDistance <= dist) {
+            if (distRemaining <= dist) {
                 const heading = bearing(from, to);
-                const pt = destination(from, totalDistance, heading, { units: 'meters' });
-                const point = pt.geometry.coordinates as Point;
+                const pt = destination(from, distRemaining, heading, { units: 'meters' });
+                const [lon, lat] = pt.geometry.coordinates;
+                const alt = this._getCurrentAltitude(path[i], path[i + 1], distRemaining / dist);
 
                 return {
-                    point,
+                    point: { lon, lat, alt },
                     heading
-                }
+                };
             }
 
-            totalDistance -= dist;
+            distRemaining -= dist;
         }
 
         // return null, we reached the end of the track
         return null;
+    }
+
+    private _getCurrentAltitude(from: Point, to: Point, i: number) {
+        return from.alt + (to.alt - from.alt) * i;
     }
 
     private _getTotalDistanceTravelledMeters(timeMillis: number) {

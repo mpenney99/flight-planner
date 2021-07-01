@@ -9,7 +9,7 @@ type Props = {
     onSelect: (flightId: string) => void;
 };
 
-function FlightOption({ flightId, onSelect }: Props) {
+function FlightPickerOption({ flightId, onSelect }: Props) {
     const { lineColor } = useRecoilValue(flightConfigAtomFamily(flightId));
     return (
         <DropdownItem onClick={onSelect.bind(null, flightId)}>
@@ -35,7 +35,11 @@ export function FlightPicker() {
         <div className="d-flex justify-content-between border-bottom mb-2 px-3 pb-3">
             <DropdownButton className="mr-2" title="Selected Flight">
                 {flightIds.map((flightId) => (
-                    <FlightOption key={flightId} flightId={flightId} onSelect={onSelectFlight} />
+                    <FlightPickerOption
+                        key={flightId}
+                        flightId={flightId}
+                        onSelect={onSelectFlight}
+                    />
                 ))}
             </DropdownButton>
             {selectedFlightId && <FlightPlaybackControls flightId={selectedFlightId} />}

@@ -12,14 +12,19 @@ type Props = {
 };
 
 const DECIMAL_DEGREES_DP = 8;
+const ALTITUDE_DP = 2;
 
 function PathNodeInputInner({ index, value, removeDisabled, onChange, onRemove }: Props) {
     const onLonChanged = (lon: number) => {
-        onChange(index, [lon, value[1]]);
+        onChange(index, { ...value, lon });
     };
 
     const onLatChanged = (lat: number) => {
-        onChange(index, [value[0], lat]);
+        onChange(index, { ...value, lat });
+    };
+
+    const onAltChanged = (alt: number) => {
+        onChange(index, { ...value, alt });
     };
 
     return (
@@ -27,7 +32,7 @@ function PathNodeInputInner({ index, value, removeDisabled, onChange, onRemove }
             <div className="flex-grow mr-2">
                 {index === 0 ? <FormLabel>Lon</FormLabel> : undefined}
                 <NumberInput
-                    value={value[0]}
+                    value={value.lon}
                     decimalPlaces={DECIMAL_DEGREES_DP}
                     onChange={onLonChanged}
                 />
@@ -35,9 +40,17 @@ function PathNodeInputInner({ index, value, removeDisabled, onChange, onRemove }
             <div className="flex-grow mr-2">
                 {index === 0 ? <FormLabel>Lat</FormLabel> : undefined}
                 <NumberInput
-                    value={value[1]}
+                    value={value.lat}
                     decimalPlaces={DECIMAL_DEGREES_DP}
                     onChange={onLatChanged}
+                />
+            </div>
+            <div className="flex-grow mr-2">
+                {index === 0 ? <FormLabel>Alt</FormLabel> : undefined}
+                <NumberInput
+                    value={value.alt}
+                    decimalPlaces={ALTITUDE_DP}
+                    onChange={onAltChanged}
                 />
             </div>
             <div className="mb-2">

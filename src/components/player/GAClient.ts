@@ -43,22 +43,23 @@ export class GAClient {
                 sequence: sequence,
                 timestamp: new Date().toISOString(),
                 location: {
-                    latitude: latitude,
-                    longitude: longitude
+                    latitude,
+                    longitude,
+                    altitude
                 },
                 altitude: {
-                    altitude: altitude,
+                    altitude,
                     unit: altitudeUnit,
                     reference: altitudeReference || 'MSL'
                 },
                 callSign,
                 vehicleType,
                 heading: {
-                    trueHeading: trueHeading,
+                    trueHeading,
                     magneticHeading: heading
                 },
                 aircraftData: {
-                    groundSpeed: groundSpeed
+                    groundSpeed
                 },
                 identification: transponderId ? transponderId : 'UNKNOWN',
                 securityGroup: securityGroup,

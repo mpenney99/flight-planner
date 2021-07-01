@@ -1,4 +1,4 @@
-import { atom, atomFamily, selector } from 'recoil';
+import { atom, atomFamily, selector, selectorFamily } from 'recoil';
 import * as yup from 'yup';
 import { update_interval } from './config.json';
 import { FlightConfig, PlayMode, Settings, UAS, VehicleType } from './types';
@@ -19,7 +19,6 @@ export const flightConfigAtomFamily = atomFamily<FlightConfig, string>({
         transponderId: '',
         callSign: '',
         speedMs: 20,
-        altitude: 30,
         path: [],
         securityGroup: '',
         vehicleType: VehicleType.UAS
@@ -34,7 +33,11 @@ export const flightIdsAtom = atom<string[]>({
 export const uasAtomFamily = atomFamily<UAS, string>({
     key: 'uas',
     default: {
-        position: [0, 0]
+        position: {
+            lat: 0,
+            lon: 0,
+            alt: 0
+        }
     }
 });
 

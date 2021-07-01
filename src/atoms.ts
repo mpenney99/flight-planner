@@ -1,4 +1,4 @@
-import { atom, atomFamily } from 'recoil';
+import { atom, atomFamily, selector } from 'recoil';
 import { update_interval } from './config.json';
 import { FlightConfig, PlayMode, Settings, UAS, VehicleType } from './types';
 import { persistInLocalStorageEffect } from './utils/atomEffects';
@@ -54,4 +54,12 @@ export const settingsAtom = atom<Settings>({
         updateInterval: update_interval
     },
     effects_UNSTABLE: [persistInLocalStorageEffect('settings')]
+});
+
+export const environmentNameSelector = selector<string>({
+    key: 'environmentName',
+    get: ({ get }) => {
+        const envId = get(settingsAtom).envId;
+        return envs.find((env) => env.id === envId)!.name;
+    }
 });

@@ -1,6 +1,7 @@
 import mapboxgl from 'mapbox-gl';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { RecoilRoot } from 'recoil';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './styles/styles.scss';
@@ -14,7 +15,9 @@ mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worke
 
 ReactDOM.render(
     <React.StrictMode>
-        <App />
+        <RecoilRoot>
+            <App />
+        </RecoilRoot>
     </React.StrictMode>,
     document.getElementById('root')
 );

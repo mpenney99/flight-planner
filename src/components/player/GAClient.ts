@@ -52,7 +52,7 @@ export class GAClient {
                     reference: altitudeReference || 'MSL'
                 },
                 callSign,
-                vehicleType: vehicleType || 'AIRPLANE',
+                vehicleType,
                 heading: {
                     trueHeading: trueHeading,
                     magneticHeading: heading

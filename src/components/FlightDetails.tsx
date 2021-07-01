@@ -4,16 +4,19 @@ import { useCallback } from 'react';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import { useRecoilState } from 'recoil';
 import { flightConfigAtomFamily } from '../atoms';
-import { Point } from '../types';
+import { Point, VehicleType } from '../types';
 import { FlightPicker } from './FlightPicker';
 import { ColorInput } from './inputs/ColorInput';
 import { NumberInput } from './inputs/NumberInput';
 import { PathNodeInput } from './inputs/PathNodeInput';
+import { SelectInput } from './inputs/SelectInput';
 import { TextInput } from './inputs/TextInput';
 
 type Props = {
     flightId: string;
 };
+
+const VEHICLE_TYPES: string[] = Object.values(VehicleType);
 
 export function FlightDetails({ flightId }: Props) {
     const [flightConfig, setFlightConfig] = useRecoilState(flightConfigAtomFamily(flightId));
@@ -40,6 +43,10 @@ export function FlightDetails({ flightId }: Props) {
 
     const onSecurityGroupChanged = (securityGroup: string) => {
         setFlightConfig((config) => ({ ...config, securityGroup }));
+    };
+
+    const onVehicleTypeChanged = (vehicleType: string) => {
+        setFlightConfig((config) => ({ ...config, vehicleType: vehicleType as VehicleType }));
     };
 
     const onAddPathNode = () => {
@@ -110,7 +117,18 @@ export function FlightDetails({ flightId }: Props) {
                 </Form.Group>
                 <Form.Group>
                     <Form.Label>Security Group</Form.Label>
-                    <TextInput value={flightConfig.securityGroup} onChange={onSecurityGroupChanged} />
+                    <TextInput
+                        value={flightConfig.securityGroup}
+                        onChange={onSecurityGroupChanged}
+                    />
+                </Form.Group>
+                <Form.Group>
+                    <Form.Label>Vehicle Type</Form.Label>
+                    <SelectInput
+                        value={flightConfig.vehicleType}
+                        onChange={onVehicleTypeChanged}
+                        options={VEHICLE_TYPES}
+                    />
                 </Form.Group>
                 <Form.Group>
                     {flightConfig.path.map((pathNode, i, arr) => (

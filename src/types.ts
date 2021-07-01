@@ -6,6 +6,12 @@ export enum PlayMode {
     STOPPED = 'stopped'
 }
 
+export enum VehicleType {
+    AIRPLANE = 'AIRPLANE',
+    UAS = 'UAS',
+    GROUND = 'GROUND'
+}
+
 export type FlightConfig = {
     lineColor: string;
     playMode: PlayMode;
@@ -15,6 +21,7 @@ export type FlightConfig = {
     speedMs: number;
     altitude: number;
     securityGroup: string;
+    vehicleType: VehicleType;
     path: Point[];
 };
 

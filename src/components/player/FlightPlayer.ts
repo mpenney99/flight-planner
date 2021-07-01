@@ -41,7 +41,6 @@ export class FlightPlayer {
         this._config = config;
         this._env = env;
         this._update = this._update.bind(this);
-
     }
 
     get events() {
@@ -152,7 +151,7 @@ export class FlightPlayer {
                     groundSpeed: this._config.speedMs * MS_TO_KNOTS,
                     source: 'uniflyJsonToFlight',
                     callSign: this._config.callSign,
-                    vehicleType: 'UAS',
+                    vehicleType: this._config.vehicleType,
                     transponderId: this._config.transponderId,
                     securityGroup: this._config.securityGroup,
                     env: this._env
@@ -162,6 +161,9 @@ export class FlightPlayer {
                         const error = `API Error - ${res.statusText}`;
                         this._events.next({ type: EventType.API_ERROR, error });
                     }
+                }).catch((err) => {
+                    const error = `Uncaught Error - ${err}`;
+                    this._events.next({ type: EventType.API_ERROR, error });
                 });
 
         } else {

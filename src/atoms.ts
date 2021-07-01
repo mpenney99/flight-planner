@@ -1,6 +1,6 @@
 import { atom, atomFamily } from 'recoil';
 import { update_interval } from './config.json';
-import { FlightConfig, PlayMode, Settings, UAS } from './types';
+import { FlightConfig, PlayMode, Settings, UAS, VehicleType } from './types';
 import { envs } from './utils/environment';
 
 export const flightConfigAtomFamily = atomFamily<FlightConfig, string>({
@@ -14,7 +14,8 @@ export const flightConfigAtomFamily = atomFamily<FlightConfig, string>({
         speedMs: 20,
         altitude: 30,
         path: [],
-        securityGroup: ''
+        securityGroup: '',
+        vehicleType: VehicleType.UAS
     }
 });
 

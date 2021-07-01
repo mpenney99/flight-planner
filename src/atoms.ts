@@ -1,6 +1,7 @@
 import { atom, atomFamily } from 'recoil';
 import { update_interval } from './config.json';
 import { FlightConfig, PlayMode, Settings, UAS, VehicleType } from './types';
+import { persistInLocalStorageEffect } from './utils/atomEffects';
 import { envs } from './utils/environment';
 
 export const flightConfigAtomFamily = atomFamily<FlightConfig, string>({
@@ -51,5 +52,6 @@ export const settingsAtom = atom<Settings>({
     default: {
         envId: envs[0].id,
         updateInterval: update_interval
-    }
+    },
+    effects_UNSTABLE: [persistInLocalStorageEffect('settings')]
 });

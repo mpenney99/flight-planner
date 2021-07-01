@@ -14,6 +14,7 @@ export type FlightConfig = {
     callSign: string;
     speedMs: number;
     altitude: number;
+    securityGroup: string;
     path: Point[];
 };
 

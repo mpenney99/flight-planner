@@ -26,7 +26,8 @@
     "recoil": "^0.3.1",
     "rxjs": "^6.6.6",
     "web-vitals": "^1.0.1",
-    "worker-loader": "^3.0.8"
+    "worker-loader": "^3.0.8",
+    "yup": "^0.32.9"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.11.4",

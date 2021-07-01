@@ -1,6 +1,5 @@
+import * as yup from 'yup';
 import { persistInLocalStorageEffect } from '../atomEffects';
-
-const VERSION = process.env.REACT_APP_VERSION;
 
 const createOnSetMock = <T>() => {
     let _handler: ((value: T) => void) | undefined;
@@ -16,21 +15,25 @@ const createOnSetMock = <T>() => {
     return onSet;
 };
 
+const schema = yup.object({
+    foo: yup.string().required()
+});
+
+const validate = (value: any) => schema.isValidSync(value, { strict: true });
+
 it('saves a value to localStorage', () => {
-    const effect = persistInLocalStorageEffect('settings');
+    const effect = persistInLocalStorageEffect('settings', validate);
     const onSet = createOnSetMock();
 
     effect({ onSet } as any);
     onSet.provide({ foo: 'bar' });
 
-    expect(localStorage.getItem('settings')).toEqual(
-        JSON.stringify({ version: VERSION, value: { foo: 'bar' } })
-    );
+    expect(localStorage.getItem('settings')).toEqual(JSON.stringify({ foo: 'bar' }));
 });
 
 it('gets the value from localStorage', () => {
-    localStorage.setItem('settings', JSON.stringify({ version: VERSION, value: { foo: 'bar' } }));
-    const effect = persistInLocalStorageEffect('settings');
+    localStorage.setItem('settings', JSON.stringify({ foo: 'bar' }));
+    const effect = persistInLocalStorageEffect('settings', validate);
     const setSelf = jest.fn();
     const onSet = createOnSetMock();
 
@@ -39,9 +42,9 @@ it('gets the value from localStorage', () => {
     expect(setSelf).toHaveBeenCalledWith({ foo: 'bar' });
 });
 
-it("doesn't get the value from localStorage when version unmatched", () => {
-    localStorage.setItem('settings', JSON.stringify({ version: 'INVALID', value: { foo: 'bar' } }));
-    const effect = persistInLocalStorageEffect('settings');
+it('ignores the value from localStorage when doesnt match the schema', () => {
+    localStorage.setItem('settings', JSON.stringify({ foo: 1 }));
+    const effect = persistInLocalStorageEffect('settings', validate);
     const setSelf = jest.fn();
     const onSet = createOnSetMock();
 

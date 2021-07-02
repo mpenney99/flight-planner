@@ -35,3 +35,28 @@ html {
     right: 0;
     margin-top: 5px;
 }
+
+.c-mapView {
+    position: relative;
+    flex-grow: 1;
+}
+
+.c-mapView__map {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.c-altitudeProfile {
+    position: absolute;
+    right: 25px;
+    bottom: 25px;
+}
+
+.c-altitudeProfile__graph {
+    background: white;
+    width: 450px;
+    height: 300px;
+}

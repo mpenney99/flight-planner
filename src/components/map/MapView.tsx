@@ -8,6 +8,7 @@ import {
 } from '../../atoms';
 import { Point } from '../../types';
 import { appendIfNotPresent } from '../../utils/arrayUtils';
+import { AltitudeProfile } from '../altitude-profile/AltitudeProfile';
 import { FlightMap } from './FlightMap';
 import { EventType as PathEventType } from './FlightMapPathsLayer';
 import { EventType as UASEventType } from './FlightMapUASLayer';
@@ -120,7 +121,10 @@ export function MapView() {
 
     return (
         <>
-            <div className="flex-grow-1" ref={containerRef} />
+            <div className="c-mapView">
+                <div className="c-mapView__map" ref={containerRef} />
+                {selectedFlightId && <AltitudeProfile flightId={selectedFlightId} />}
+            </div>
             {flightMap &&
                 flightIds.map((pathId) => (
                     <PathRenderer key={pathId} pathId={pathId} flightMap={flightMap} />

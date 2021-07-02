@@ -1,0 +1,47 @@
+
+.c-graph__container {
+    position: relative;
+}
+
+.c-graph {
+    width: 450px;
+    height: 300px;
+}
+
+.c-graph__gridLines {
+    line {
+        stroke: rgba(black, 0.1);
+    }
+    path {
+        display: none;
+    }
+}
+
+.c-graph__line {
+    stroke: #007bff;
+}
+
+.c-graph__point {
+    fill: #007bff;
+}
+
+.c-tooltip {
+    background: rgba(white, 0.9);
+    border: 1px solid #d4d4d4;
+    border-radius: 0.25rem;
+    box-shadow: 1px 1px 3px rgba(black, 0.2);
+    padding: 0.5rem;
+    pointer-events: none;
+    position: absolute;
+}
+
+.c-tooltip__field {
+    display: flex;
+}
+
+.c-tooltip__fieldLabel {
+    font-weight: 700;
+    margin-right: 7px;
+    min-width: 35px;
+    text-align: right;
+}

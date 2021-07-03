@@ -47,6 +47,10 @@
     text-align: right;
 }
 
+.c-uasMarker {
+    cursor: move;
+}
+
 .c-uasMarker__background {
     fill: var(--primary);
     stroke: darken(#007bff, 10%);

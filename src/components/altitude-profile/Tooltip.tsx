@@ -1,5 +1,4 @@
 import { RefObject, useLayoutEffect, useRef } from 'react';
-import { Point } from '../../types';
 
 const CONTAINER_MARGIN = 10;
 
@@ -7,10 +6,10 @@ type Props = {
     containerRef: RefObject<HTMLElement>;
     xPos: number;
     yPos: number;
-    point: Point;
+    fields: [string, string | number][];
 };
 
-export function Tooltip({ xPos, yPos, point, containerRef }: Props) {
+export function Tooltip({ xPos, yPos, fields, containerRef }: Props) {
     const ref = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
@@ -32,18 +31,12 @@ export function Tooltip({ xPos, yPos, point, containerRef }: Props) {
 
     return (
         <div ref={ref} className="c-tooltip">
-            <div className="c-tooltip__field">
-                <div className="c-tooltip__fieldLabel">Alt</div>
-                {point.alt}
-            </div>
-            <div className="c-tooltip__field">
-                <div className="c-tooltip__fieldLabel">Lon</div>
-                {point.lon}
-            </div>
-            <div className="c-tooltip__field">
-                <div className="c-tooltip__fieldLabel">Lat</div>
-                {point.lat}
-            </div>
+            {fields.map(([fieldLabel, fieldValue], i) => (
+                <div className="c-tooltip__field" key={i}>
+                    <div className="c-tooltip__fieldLabel">{fieldLabel}</div>
+                    {fieldValue}
+                </div>
+            ))}
         </div>
     );
 }

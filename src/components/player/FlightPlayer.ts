@@ -1,10 +1,7 @@
-import bearing from '@turf/bearing';
-import destination from '@turf/destination';
-import distance from '@turf/distance';
 import { Subject } from 'rxjs';
-import { FlightConfig, Point, UASState } from '../../types';
+import { FlightConfig, UASState } from '../../types';
 import { Env } from '../../utils/environment';
-import { pointToGeoPosition } from '../../utils/geoUtils';
+import { getUASStateAlongPath } from '../../utils/geoUtils';
 import { GAClient } from './GAClient';
 
 const MS_TO_KNOTS = 1.94384;
@@ -58,6 +55,7 @@ export class FlightPlayer {
         }
 
         this._config = config;
+        this._update();
     }
 
     setEnv(env: Env) {
@@ -118,13 +116,13 @@ export class FlightPlayer {
     private _update(): void {
         const timeMillis = new Date().getTime();
         const totalDistance = this._getTotalDistanceTravelledMeters(timeMillis);
-        let uasState = this._getCurrentState(totalDistance);
+        let uasState = getUASStateAlongPath(totalDistance, this._config.path, this._config.vehicleType);
 
         // replay the track
         if (uasState == null && this._playRepeat) {
             this._startTime = timeMillis;
             this._distOffset = 0;
-            uasState = this._getCurrentState(0);
+            uasState = getUASStateAlongPath(0, this._config.path, this._config.vehicleType);
         }
 
         if (uasState) {
@@ -167,41 +165,6 @@ export class FlightPlayer {
         } else {
             this.stop();
         }
-    }
-
-    private _getCurrentState(distTravelled: number): UASState | null {
-        const path = this._config.path;
-        let distRemaining = distTravelled;
-
-        // given a distance, find the corresponding position on the track
-        for (let i = 0, n = path.length - 1; i < n; i++) {
-            const from = pointToGeoPosition(path[i]);
-            const to = pointToGeoPosition(path[i + 1]);
-            const distBetween = distance(from, to, { units: 'meters' });
-
-            if (distRemaining <= distBetween) {
-                const heading = bearing(from, to);
-                const pt = destination(from, distRemaining, heading, { units: 'meters' });
-                const [lon, lat] = pt.geometry.coordinates;
-                const alt = this._getCurrentAltitude(path[i], path[i + 1], distRemaining / distBetween);
-
-                return {
-                    vehicleType: this._config.vehicleType,
-                    distanceTravelled: distTravelled,
-                    heading,
-                    position: { lon, lat, alt }
-                };
-            }
-
-            distRemaining -= distBetween;
-        }
-
-        // return null when we reached the end of the track
-        return null;
-    }
-
-    private _getCurrentAltitude(from: Point, to: Point, i: number) {
-        return from.alt + (to.alt - from.alt) * i;
     }
 
     private _getTotalDistanceTravelledMeters(timeMillis: number) {

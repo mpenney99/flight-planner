@@ -1,4 +1,4 @@
-import { atom, atomFamily, selector, selectorFamily } from 'recoil';
+import { atom, atomFamily, selector } from 'recoil';
 import * as yup from 'yup';
 import { update_interval } from './config.json';
 import { FlightConfig, PlayMode, Settings, UASState, VehicleType } from './types';

@@ -1,7 +1,7 @@
 import { atom, atomFamily, selector, selectorFamily } from 'recoil';
 import * as yup from 'yup';
 import { update_interval } from './config.json';
-import { FlightConfig, PlayMode, Settings, UAS, VehicleType } from './types';
+import { FlightConfig, PlayMode, Settings, UASState, VehicleType } from './types';
 import { persistInLocalStorageEffect } from './utils/atomEffects';
 import { envs } from './utils/environment';
 
@@ -30,15 +30,9 @@ export const flightIdsAtom = atom<string[]>({
     default: []
 });
 
-export const uasAtomFamily = atomFamily<UAS, string>({
+export const uasAtomFamily = atomFamily<UASState | null, string>({
     key: 'uas',
-    default: {
-        position: {
-            lat: 0,
-            lon: 0,
-            alt: 0
-        }
-    }
+    default: null
 });
 
 export const uasIdsAtom = atom<string[]>({

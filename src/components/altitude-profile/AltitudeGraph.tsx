@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { flightConfigAtomFamily } from '../../atoms';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { flightConfigAtomFamily, uasAtomFamily } from '../../atoms';
 import distance from '@turf/distance';
-import { Point } from '../../types';
+import { Point, UASState } from '../../types';
 import { pointToGeoPosition } from '../../utils/geoUtils';
 import { Tooltip } from './Tooltip';
 
@@ -12,6 +12,7 @@ import { scaleLinear } from 'd3-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { line } from 'd3-shape';
 import { drag } from 'd3-drag';
+import { createUASMarker, updateUASMarker } from '../map/uasPainter';
 
 type Props = {
     flightId: string;
@@ -95,6 +96,7 @@ export function AltitudeGraph({ flightId }: Props) {
 
     const [tooltip, setTooltip] = useState<TooltipState>();
     const [config, setConfig] = useRecoilState(flightConfigAtomFamily(flightId));
+    const uasState = useRecoilValue(uasAtomFamily(flightId));
     const path = config.path;
 
     const onPathChanged = useCallback((path: Point[]) => {
@@ -143,6 +145,14 @@ export function AltitudeGraph({ flightId }: Props) {
             .attr('stroke-width', 1.5)
             .attr('fill', 'none');
 
+        // create points container
+        $svg.append('g')
+            .attr('class', 'c-graph__pointContainer');
+
+        // create uas marker container
+        $svg.append('g')
+            .attr('class', 'c-graph__uasContainer');
+
         // destroy the graph on unmount
         return () => {
             const nodes = Array.from(svg.childNodes);
@@ -181,6 +191,7 @@ export function AltitudeGraph({ flightId }: Props) {
             .attr('transform', translate(MARGIN_LEFT, 0))
             .call(axisLeft(yScale));
 
+        // update grid-lines
         $svg.select<SVGGElement>('.c-graph__gridLines')
             .attr('transform', translate(MARGIN_LEFT, 0))   
             .call(axisLeft(yScale).tickSize((MARGIN_LEFT + MARGIN_RIGHT) - width).tickFormat('' as any))
@@ -195,7 +206,8 @@ export function AltitudeGraph({ flightId }: Props) {
         }
 
         const updatePoints = () => {
-            $svg.selectAll<SVGCircleElement, Datum>('.c-graph__point')
+            $svg.select('.c-graph__pointContainer')
+                .selectAll<SVGCircleElement, Datum>('.c-graph__point')
                 .data(data)
                 .join('circle')
                     .attr('class', 'c-graph__point')
@@ -226,14 +238,34 @@ export function AltitudeGraph({ flightId }: Props) {
                         const [xPos, yPos] = pointer(event, container);
                         setTooltip({ xPos, yPos, point: datum.point });
                     })
-                    .on('mouseout', function(event) {
+                    .on('mouseout', function() {
                         setTooltip(undefined);
                     });
         }
 
+        // update the uas position on the graph
+        const updateUAS = () => {
+            $svg.select('.c-graph__uasContainer')
+                .selectAll<SVGSVGElement, UASState>('.c-uasMarker')
+                .data(uasState ? [uasState] : [])
+                .join(
+                    enter => enter.append((datum) => {
+                        const x = xScale(datum.distanceTravelled);
+                        const y = yScale(datum.position.alt);
+                        return createUASMarker(datum.vehicleType, x, y);
+                    }),
+                    update => update.each(function(datum) {
+                        const x = xScale(datum.distanceTravelled);
+                        const y = yScale(datum.position.alt);
+                        updateUASMarker(this, datum.vehicleType, x, y);
+                    })
+                );
+        }
+
         updateLine();
         updatePoints();
-    }, [path, onPathChanged]);
+        updateUAS();
+    }, [path, uasState, onPathChanged]);
 
     return (
         <div className="c-altitudeProfile">

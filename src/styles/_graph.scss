@@ -18,11 +18,12 @@
 }
 
 .c-graph__line {
-    stroke: #007bff;
+    stroke: var(--primary);
 }
 
 .c-graph__point {
-    fill: #007bff;
+    cursor: move;
+    fill: var(--primary);
 }
 
 .c-tooltip {
@@ -44,4 +45,10 @@
     margin-right: 7px;
     min-width: 35px;
     text-align: right;
+}
+
+.c-uasMarker__background {
+    fill: var(--primary);
+    stroke: darken(#007bff, 10%);
+    stroke-width: 2px;
 }

@@ -2,7 +2,7 @@ import bearing from '@turf/bearing';
 import destination from '@turf/destination';
 import distance from '@turf/distance';
 import { Subject } from 'rxjs';
-import { FlightConfig, Point, UAS } from '../../types';
+import { FlightConfig, Point, UASState } from '../../types';
 import { Env } from '../../utils/environment';
 import { pointToGeoPosition } from '../../utils/geoUtils';
 import { GAClient } from './GAClient';
@@ -17,8 +17,8 @@ export enum EventType {
 }
 
 export type Event =
-    | { type: EventType.UAS_CREATED; uasId: string; uas: UAS }
-    | { type: EventType.UAS_UPDATED; uasId: string; uas: UAS }
+    | { type: EventType.UAS_CREATED; uasId: string; uas: UASState }
+    | { type: EventType.UAS_UPDATED; uasId: string; uas: UASState }
     | { type: EventType.UAS_REMOVED; uasId: string }
     | { type: EventType.API_ERROR; error: string };
 
@@ -87,6 +87,9 @@ export class FlightPlayer {
             type: EventType.UAS_CREATED,
             uasId: this._uasId,
             uas: {
+                vehicleType: this._config.vehicleType,
+                distanceTravelled: 0,
+                heading: 0,
                 position: this._config.path[0]
             }
         });
@@ -115,37 +118,33 @@ export class FlightPlayer {
     private _update(): void {
         const timeMillis = new Date().getTime();
         const totalDistance = this._getTotalDistanceTravelledMeters(timeMillis);
-        let position = this._getCurrentPosition(totalDistance);
+        let uasState = this._getCurrentState(totalDistance);
 
         // replay the track
-        if (position == null && this._playRepeat) {
+        if (uasState == null && this._playRepeat) {
             this._startTime = timeMillis;
             this._distOffset = 0;
-            position = this._getCurrentPosition(0);
+            uasState = this._getCurrentState(0);
         }
 
-        if (position) {
-            const { point, heading } = position;
-
+        if (uasState) {
             // notify observers
             this._events.next({
                 type: EventType.UAS_UPDATED,
                 uasId: this._uasId,
-                uas: {
-                    position: point
-                }
+                uas: uasState
             });
 
             // send the API request
             this._client
                 .sendTrack({
-                    longitude: point.lon,
-                    latitude: point.lat,
-                    altitude: point.alt,
+                    longitude: uasState.position.lon,
+                    latitude: uasState.position.lat,
+                    altitude: uasState.position.alt,
                     sequence: this._sequence++,
                     altitudeUnit: 'm',
                     altitudeReference: 'MSL',
-                    heading,
+                    heading: uasState.heading,
                     trueHeading: 0,
                     groundSpeed: this._config.speedMs * MS_TO_KNOTS,
                     source: 'uniflyJsonToFlight',
@@ -170,31 +169,34 @@ export class FlightPlayer {
         }
     }
 
-    private _getCurrentPosition(distRemaining: number): { point: Point; heading: number } | null {
+    private _getCurrentState(distTravelled: number): UASState | null {
         const path = this._config.path;
+        let distRemaining = distTravelled;
 
         // given a distance, find the corresponding position on the track
         for (let i = 0, n = path.length - 1; i < n; i++) {
             const from = pointToGeoPosition(path[i]);
             const to = pointToGeoPosition(path[i + 1]);
-            const dist = distance(from, to, { units: 'meters' });
+            const distBetween = distance(from, to, { units: 'meters' });
 
-            if (distRemaining <= dist) {
+            if (distRemaining <= distBetween) {
                 const heading = bearing(from, to);
                 const pt = destination(from, distRemaining, heading, { units: 'meters' });
                 const [lon, lat] = pt.geometry.coordinates;
-                const alt = this._getCurrentAltitude(path[i], path[i + 1], distRemaining / dist);
+                const alt = this._getCurrentAltitude(path[i], path[i + 1], distRemaining / distBetween);
 
                 return {
-                    point: { lon, lat, alt },
-                    heading
+                    vehicleType: this._config.vehicleType,
+                    distanceTravelled: distTravelled,
+                    heading,
+                    position: { lon, lat, alt }
                 };
             }
 
-            distRemaining -= dist;
+            distRemaining -= distBetween;
         }
 
-        // return null, we reached the end of the track
+        // return null when we reached the end of the track
         return null;
     }
 

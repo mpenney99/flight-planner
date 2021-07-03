@@ -1,6 +1,7 @@
 import mapboxgl from 'mapbox-gl';
 import { Subject } from 'rxjs';
-import { UAS } from '../../types';
+import { UASState } from '../../types';
+import { createUASMarker, updateUASMarker } from './uasPainter';
 
 export enum EventType {
     UAS_SELECTED
@@ -24,13 +25,16 @@ export class FlightMapUASLayer {
         return this._subject.subscribe(observer);
     }
 
-    createOrUpdateUAS(id: string, uas: UAS) {
+    createOrUpdateUAS(id: string, uas: UASState) {
         let marker = this._uasMarkers.get(id);
 
         if (!marker) {
-            const el = this._createMarkerElement(id);
-            marker = new mapboxgl.Marker(el).setLngLat(uas.position).addTo(this._map);
+            const el = this._createMarkerElement(id, uas);
+            marker = new mapboxgl.Marker(el as unknown as HTMLElement).setLngLat(uas.position).addTo(this._map);
             this._uasMarkers.set(id, marker);
+        } else {
+            const markerEl = marker.getElement()!.firstChild as SVGSVGElement;
+            updateUASMarker(markerEl, uas.vehicleType, 0, 0);
         }
 
         marker.setLngLat(uas.position);
@@ -46,19 +50,15 @@ export class FlightMapUASLayer {
         marker.remove();
     }
 
-    private _createMarkerElement(featureId: string) {
+    private _createMarkerElement(featureId: string, uas: UASState) {
         const container = document.createElement('div');
 
-        const el = document.createElement('div');
-        el.className = 'c-uas-marker';
-        el.style.backgroundImage = `url(/uas.png)`;
-        el.style.width = '40px';
-        el.style.height = '40px';
-        el.addEventListener('click', () => {
+        const svg = createUASMarker(uas.vehicleType, 0, 0);
+        svg.firstChild!.addEventListener('click', () => {
             this._subject.next({ type: EventType.UAS_SELECTED, uasId: featureId });
         });
 
-        container.appendChild(el);
+        container.appendChild(svg);
         return container;
     }
 }

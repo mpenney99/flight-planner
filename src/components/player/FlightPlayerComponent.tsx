@@ -8,7 +8,7 @@ import {
     uasAtomFamily,
     uasIdsAtom
 } from '../../atoms';
-import { PlayMode, UAS } from '../../types';
+import { PlayMode, UASState } from '../../types';
 import { appendIfNotPresent } from '../../utils/arrayUtils';
 import { envs, getEnvById } from '../../utils/environment';
 import { EventType, FlightPlayer } from './FlightPlayer';
@@ -29,7 +29,7 @@ export function FlightPlayerComponent({ flightId }: Props) {
     // handle flight player events, update recoil state
 
     const onUasCreated = useRecoilCallback(
-        ({ set }) => (uasId: string, uas: UAS) => {
+        ({ set }) => (uasId: string, uas: UASState) => {
             set(uasAtomFamily(uasId), uas);
             set(uasIdsAtom, (uasIds) => appendIfNotPresent(uasIds, uasId));
         },
@@ -37,7 +37,7 @@ export function FlightPlayerComponent({ flightId }: Props) {
     );
 
     const onUasUpdated = useRecoilCallback(
-        ({ set }) => (uasId: string, uas: UAS) => {
+        ({ set }) => (uasId: string, uas: UASState) => {
             set(uasAtomFamily(uasId), uas);
         },
         []

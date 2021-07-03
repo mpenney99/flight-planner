@@ -17,6 +17,7 @@ export function UasRenderer({ uasId, flightMap }: Props) {
 
     // update the UAS on the map
     useEffect(() => {
+        if (!uas) return;
         flightMap.uasLayer.createOrUpdateUAS(uasId, uas);
     }, [uas, flightMap, uasId]);
 

@@ -28,7 +28,10 @@ export type FlightConfig = {
     path: Point[];
 };
 
-export type UAS = {
+export type UASState = {
+    distanceTravelled: number;
+    vehicleType: VehicleType;
+    heading: number;
     position: Point;
 };
 

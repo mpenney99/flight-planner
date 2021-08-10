@@ -1,10 +1,10 @@
-import distance from '@turf/distance';
 import bearing from '@turf/bearing';
 import destination from '@turf/destination';
-import { GAClient } from './GAClient';
-import { FlightConfig, Point, UAS } from '../../types';
+import distance from '@turf/distance';
 import { Subject } from 'rxjs';
+import { FlightConfig, Point, UAS } from '../../types';
 import { Env } from '../../utils/environment';
+import { GAClient } from './GAClient';
 
 const MS_TO_KNOTS = 1.94384;
 
@@ -16,13 +16,12 @@ export enum EventType {
 }
 
 export type Event =
-    | { type: EventType.UAS_CREATED, uasId: string, uas: UAS }
-    | { type: EventType.UAS_UPDATED, uasId: string, uas: UAS }
-    | { type: EventType.UAS_REMOVED, uasId: string }
-    | { type: EventType.API_ERROR, error: string };
+    | { type: EventType.UAS_CREATED; uasId: string; uas: UAS }
+    | { type: EventType.UAS_UPDATED; uasId: string; uas: UAS }
+    | { type: EventType.UAS_REMOVED; uasId: string }
+    | { type: EventType.API_ERROR; error: string };
 
 export class FlightPlayer {
-
     private readonly _client: GAClient = new GAClient();
     private readonly _uasId: string;
     private readonly _events = new Subject<Event>();
@@ -41,7 +40,6 @@ export class FlightPlayer {
         this._config = config;
         this._env = env;
         this._update = this._update.bind(this);
-
     }
 
     get events() {
@@ -88,8 +86,7 @@ export class FlightPlayer {
             type: EventType.UAS_CREATED,
             uasId: this._uasId,
             uas: {
-                position: this._config.path[0],
-
+                position: this._config.path[0]
             }
         });
     }
@@ -147,8 +144,8 @@ export class FlightPlayer {
                     altitude: this._config.altitude,
                     altitudeUnit: 'm',
                     altitudeReference: 'MSL',
-                    heading,
-                    trueHeading: 0,
+                    trueHeading: heading,
+                    magneticHeading: null,
                     groundSpeed: this._config.speedMs * MS_TO_KNOTS,
                     source: 'uniflyJsonToFlight',
                     callSign: this._config.callSign,
@@ -162,13 +159,12 @@ export class FlightPlayer {
                         this._events.next({ type: EventType.API_ERROR, error });
                     }
                 });
-
         } else {
             this.stop();
         }
     }
 
-    private _getCurrentPosition(totalDistance: number): { point: Point, heading: number } | null {
+    private _getCurrentPosition(totalDistance: number): { point: Point; heading: number } | null {
         const path = this._config.path;
 
         // given a distance, find the corresponding position on the track
@@ -185,7 +181,7 @@ export class FlightPlayer {
                 return {
                     point,
                     heading
-                }
+                };
             }
 
             totalDistance -= dist;

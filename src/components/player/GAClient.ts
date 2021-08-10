@@ -5,8 +5,8 @@ export type Track = {
     longitude: number;
     sequence: number;
     altitude: number;
-    heading: number;
     trueHeading: number;
+    magneticHeading: number | null;
     groundSpeed: number;
     altitudeReference: string;
     altitudeUnit: string;
@@ -23,8 +23,8 @@ export class GAClient {
         longitude,
         sequence,
         altitude,
-        heading,
         trueHeading,
+        magneticHeading,
         groundSpeed,
         altitudeReference,
         altitudeUnit,
@@ -52,8 +52,8 @@ export class GAClient {
                 callSign: callSign || 'OO-UNIFLY',
                 vehicleType: vehicleType || 'AIRPLANE',
                 heading: {
-                    trueHeading: trueHeading,
-                    magneticHeading: heading
+                    trueHeading,
+                    magneticHeading
                 },
                 aircraftData: {
                     groundSpeed: groundSpeed
